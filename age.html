@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>만나이(생활연령) 계산기 | 툴서랍</title>
+  <meta name="description" content="생년월일을 입력하면 KST 기준으로 만나이(생활연령)를 즉시 계산합니다. 다음 생일까지 D‑Day, 살아온 날, 개월수 표기(예: 49개월 / 4세 1개월 / 4;1) 제공." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='18' width='100' height='100' fill='%23e8efff'/%3E%3Ctext x='50' y='62' font-size='50' text-anchor='middle' fill='%232563eb'%3E🎂%3C/text%3E%3C/svg%3E"/>
+
+  <!-- (선택) AdSense 전역 스니펫: 승인 후 주석 해제하고 client 교체하면 전체 페이지 자동 광고 동작 -->
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"anonymous"></script>
+ 
+
+  <style>
+    /* THEME TOKENS (light only) */
+    :root{
+      --bg:#f7f9fd; --panel:#ffffff; --line:#e6eaf2; --ink:#1f2a37; --muted:#6b7280; --acc:#2563eb; --ok:#16a34a; --warn:#f59e0b;
+      --chip:#f3f6ff; --ads:#ffffff; --ads-border:#e6eaf2; --shadow:0 10px 22px rgba(2,8,23,.08);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;color:var(--ink);background:
+      radial-gradient(1000px 500px at 80% -10%, #dbeafe 0%, transparent 60%), var(--bg);
+      font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Apple SD Gothic Neo,sans-serif}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 18px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{width:44px;height:44px;display:grid;place-items:center;background:linear-gradient(135deg,#60a5fa,#2563eb);border-radius:14px;box-shadow:0 6px 18px rgba(37,99,235,.25);font-weight:900;color:#fff}
+    .title h1{margin:0;font-size:clamp(20px,3vw,28px)}
+    .title p{margin:4px 0 0; color:var(--muted); font-size:14px}
+
+    main{display:grid; grid-template-columns: 1.2fr 0.8fr; gap:24px}
+    @media (max-width: 860px){ main{grid-template-columns:1fr} }
+
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:20px}
+    .card h2{margin:0 0 12px;font-size:18px}
+
+    .field{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+    label{font-weight:700}
+    input[type="date"]{background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:18px 16px;outline:none;font-size:20px}
+    input[type="date"]:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+
+    .row{display:flex;gap:12px}
+    .row>*{flex:1}
+
+    .btn{display:inline-grid;place-items:center;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px}
+    .btn:hover{filter:brightness(1.05)}
+    .btn.small{padding:6px 8px;border-radius:10px;font-size:12px}
+    .btn.primary{background:linear-gradient(135deg,#60a5fa,#2563eb);border-color:#2563eb;color:#fff}
+
+    .result{display:grid;gap:12px}
+    .meter{display:flex;gap:8px;align-items:center}
+    .meter .dot{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+    .flex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .bigage{font-size:clamp(42px,8vw,72px);font-weight:900;letter-spacing:-1px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .kpi{background:#fff;border:1px dashed var(--line);border-radius:16px;padding:14px}
+    .kpi b{display:block;font-size:20px;margin-top:4px}
+
+    .ads{display:grid;place-items:center;height:140px;border:1px dashed var(--ads-border);border-radius:14px;color:#7b8bbd;font-size:13px;margin:4px 0 18px;background:var(--ads)}
+
+    footer{margin:24px 0 0;color:var(--muted);font-size:13px}
+    .hl{color:#059669}
+    .notice{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:13px}
+    .copyable{user-select:all}
+    .back{color:var(--acc);text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">TS</div>
+        <div class="title">
+          <h1>만나이(생활연령) 계산기</h1>
+          <p>'개월수' '연;월' 표기 제공</p>
+        </div>
+      </div>
+      <nav>
+        <a href="/" class="back" aria-label="홈으로">← 툴서랍 홈</a>
+        <a href="#" id="shareLink" class="btn" aria-label="현재 결과 링크 복사" style="margin-left:10px">🔗 링크복사</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="calcTitle">
+        <h2 id="calcTitle">입력</h2>
+        <div class="field">
+          <label for="dob">생년월일</label>
+          <input id="dob" type="date" inputmode="numeric" placeholder="YYYY-MM-DD" required />
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button id="calcBtn" class="btn primary" aria-label="만나이 계산하기">계산하기</button>
+          <button id="resetBtn" class="btn" aria-label="입력 초기화">초기화</button>
+        </div>
+
+        <div style="margin-top:16px" class="notice" role="note">
+          📌 2023-06-28부터 국내 공공·일반 영역에서 국제 표준 <b>만나이</b>가 공식 사용됩니다.(기준 시간대: KST)
+        </div>
+
+        <div style="margin-top:18px" class="ads" aria-label="광고영역">
+          <!-- 반응형 광고 단위 위치 예시 -->
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+          crossorigin="anonymous"></script>
+     <ins class="adsbygoogle"
+          style="display:block; text-align:center;"
+          data-ad-layout="in-article"
+          data-ad-format="fluid"
+          data-ad-client="ca-pub-6022794906780783"
+          data-ad-slot="8339091148"></ins>
+     <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+     </script>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="resultTitle">
+        <h2 id="resultTitle">결과</h2>
+        <div class="result">
+          <div class="meter"><span class="dot"></span><span class="muted" id="nowKst">기준 시각: -</span></div>
+
+          <div class="flex">
+            <div class="bigage copyable" id="ageMain" aria-live="polite">만 - 세</div>
+            <button class="btn small" id="copyAge" aria-label="만나이 복사">복사</button>
+          </div>
+          <div class="muted" id="ageDetail">생년월일을 입력해주세요.</div>
+
+          <div class="grid" style="margin-top:8px">
+            <div class="kpi"><span class="muted">다음 생일까지</span><b id="dday">-일</b></div>
+            <div class="kpi"><span class="muted">살아온 날</span><b id="lived">-일</b></div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h2 style="font-size:16px; margin:0 0 8px">개월수 표기</h2>
+            <div class="flex">
+              <div class="copyable" id="ageMonths" style="font-weight:800; font-size:20px">-개월</div>
+              <button class="btn small" id="copyMonths" aria-label="개월수 복사">복사</button>
+            </div>
+            <div class="flex">
+              <div class="copyable" id="ageYearMonth">-세 -개월</div>
+              <button class="btn small" id="copyYearMonth" aria-label="세 개월 표기 복사">복사</button>
+            </div>
+            <div class="flex">
+              <div class="copyable" id="ageSemicolon">-;-</div>
+              <button class="btn small" id="copySemicolon" aria-label="세미콜론 표기 복사">복사</button>
+            </div>
+          </div>
+
+          <div class="ads" aria-label="광고영역" style="margin-top:12px">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-6022794906780783"
+     data-ad-slot="8339091148"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+          </div>
+          <div class="muted" style="font-size:12px">※ 참고용 정보입니다. 법적·의학적 판단이 필요한 경우 공식 문서를 확인하세요.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>© <span id="year"></span> 툴서랍</p>
+    </footer>
+  </div>
+
+  <script>
+    // 고정 기준 시간대
+    const KST = 'Asia/Seoul';
+    const fmt = new Intl.DateTimeFormat('ko-KR', { timeZone: KST, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+
+    function toZonedYMD(dateLike){
+      const d=new Date(dateLike);
+      const f=new Intl.DateTimeFormat('en-CA', { timeZone: KST, year:'numeric', month:'2-digit', day:'2-digit' });
+      const [y,m,da]=f.format(d).split('-').map(Number);
+      return { y, m, d:da };
+    }
+
+    function readQuery(){
+      const u=new URL(location.href); const q=u.searchParams; return { dob:q.get('dob')||'' };
+    }
+    function writeQuery(dob){
+      const u=new URL(location.href); const p=u.searchParams; dob? p.set('dob',dob): p.delete('dob'); history.replaceState(null,'',u.toString());
+    }
+
+    function calcAge(dobStr, now=new Date()){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(dobStr)) return null;
+      const [by,bm,bd]=dobStr.split('-').map(Number);
+      const {y:cy, m:cm, d:cd}=toZonedYMD(now);
+
+      // 만나이(연)
+      let years = cy - by;
+      if(cm < bm || (cm === bm && cd < bd)) years -= 1;
+
+      // 전체 개월수(만 개월): 생일을 기준으로 월 단위 경계 처리
+      let months = (cy - by) * 12 + (cm - bm);
+      if (cd < bd) months -= 1; // 아직 그 달의 생일이 안 지난 경우 한 달 빼기
+      if (months < 0) months = 0;
+
+      const yPart = Math.floor(months / 12);
+      const mPart = months % 12;
+
+      // 다음 생일까지
+      let nextY = cy;
+      if (cm > bm || (cm === bm && cd >= bd)) nextY = cy + 1;
+      const nextBirthdayUTC = new Date(Date.UTC(nextY, bm-1, bd));
+      const todayUTC = new Date(Date.UTC(cy, cm-1, cd));
+      const daysToNext = Math.ceil((nextBirthdayUTC - todayUTC)/86400000);
+
+      // 살아온 날
+      const birthUTC = new Date(Date.UTC(by, bm-1, bd));
+      const daysLived = Math.floor((todayUTC - birthUTC)/86400000);
+
+      return { years, months, yPart, mPart, daysToNext, daysLived };
+    }
+
+    function setNow(){
+      document.getElementById('nowKst').textContent = `기준 시각: ${fmt.format(new Date())} (KST)`;
+    }
+
+    function render(dob){
+      const r = calcAge(dob);
+      if(!r){ alert('생년월일을 YYYY-MM-DD 형식으로 입력하세요.'); return; }
+      const {years, months, yPart, mPart, daysToNext, daysLived} = r;
+      document.getElementById('ageMain').textContent = `만 ${years}세`;
+      document.getElementById('ageDetail').textContent = `${dob} 기준, 현재 시점(KST)에서 계산되었습니다.`;
+      document.getElementById('dday').textContent = daysToNext >= 0 ? `${daysToNext}일` : '-';
+      document.getElementById('lived').textContent = `${daysLived.toLocaleString('ko-KR')}일`;
+
+      // 개월수 표기들
+      document.getElementById('ageMonths').textContent = `${months}개월`;
+      document.getElementById('ageYearMonth').textContent = `${yPart}세 ${mPart}개월`;
+      document.getElementById('ageSemicolon').textContent = `${yPart};${mPart}`;
+
+      writeQuery(dob);
+    }
+
+    function copyText(id){
+      const el=document.getElementById(id);
+      const txt=el.textContent.trim();
+      navigator.clipboard.writeText(txt).then(()=>{
+        const btnId = (
+          id==='ageMain' ? 'copyAge' :
+          id==='ageMonths' ? 'copyMonths' :
+          id==='ageYearMonth' ? 'copyYearMonth' : 'copySemicolon'
+        );
+        const b=document.getElementById(btnId); const old=b.textContent; b.textContent='✅'; setTimeout(()=>b.textContent='복사',1000);
+      }).catch(()=>alert('복사에 실패했습니다.'))
+    }
+
+    // 이벤트
+    document.getElementById('calcBtn').addEventListener('click', ()=>{
+      const dob=document.getElementById('dob').value; render(dob); setNow();
+    });
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      document.getElementById('dob').value='';
+      document.getElementById('ageMain').textContent='만 - 세';
+      document.getElementById('ageDetail').textContent='생년월일을 입력해주세요.';
+      document.getElementById('dday').textContent='-일';
+      document.getElementById('lived').textContent='-일';
+      document.getElementById('ageMonths').textContent='-개월';
+      document.getElementById('ageYearMonth').textContent='-세 -개월';
+      document.getElementById('ageSemicolon').textContent='-;-';
+      writeQuery(''); setNow();
+    });
+
+    document.getElementById('copyAge').addEventListener('click', ()=>copyText('ageMain'));
+    document.getElementById('copyMonths').addEventListener('click', ()=>copyText('ageMonths'));
+    document.getElementById('copyYearMonth').addEventListener('click', ()=>copyText('ageYearMonth'));
+    document.getElementById('copySemicolon').addEventListener('click', ()=>copyText('ageSemicolon'));
+
+    document.getElementById('shareLink').addEventListener('click', (e)=>{
+      e.preventDefault();
+      navigator.clipboard.writeText(location.href).then(()=>{
+        const el=e.currentTarget; const old=el.textContent; el.textContent='✅ 복사됨'; setTimeout(()=>el.textContent=old,1200);
+      }).catch(()=>alert('복사에 실패했습니다. 주소창의 URL을 직접 복사해주세요.'))
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 초기화
+    (function init(){
+      setNow();
+      const q=readQuery();
+      if(q.dob){ document.getElementById('dob').value=q.dob; render(q.dob); }
+    })();
+  </script>
+
+  <!-- 구조화 데이터(SEO) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "만나이(생활연령) 계산기",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "url": "https://calc.example.com/age/",
+    "inLanguage": "ko"
+  }
+  </script>
+</body>
+</html>
