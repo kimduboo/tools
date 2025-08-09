@@ -1,61 +1,87 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>툴서랍 – 필요한 순간 꺼내 쓰는 생활 계산기</title>
   <meta name="description" content="만나이, 디데이, BMI, 단위 변환 등 생활에 유용한 도구를 한곳에 - 빠르고 가벼운 반응형 웹사이트" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='18' width='100' height='100' fill='%23111834'/%3E%3Ctext x='50' y='62' font-size='50' text-anchor='middle' fill='white'%3E%F0%9F%95%9A%EF%B8%8F%3C/text%3E%3C/svg%3E"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='18' width='100' height='100' fill='%23e8efff'/%3E%3Ctext x='50' y='62' font-size='50' text-anchor='middle' fill='%232563eb'%3E%F0%9F%95%9A%EF%B8%8F%3C/text%3E%3C/svg%3E"/>
 
   <!-- (선택) AdSense 전역 스니펫: 승인 후 주석 해제하고 client 교체하면 전체 페이지 자동 광고 동작 -->
-  <!--
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
-  -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783" crossorigin="anonymous"></script>
+
 
   <style>
+    /* THEME TOKENS */
     :root{
-      --bg:#0b1020; --panel:#0f1733; --line:#1a2550; --ink:#e9eefc; --muted:#b7c0de; --acc:#7aa2ff; --ok:#6be585;
+      /* light */
+      --bg:#f7f9fd; --panel:#ffffff; --line:#e6eaf2; --ink:#1f2a37; --muted:#6b7280; --acc:#2563eb; --ok:#16a34a; --chip:#f3f6ff; --ads:#ffffff; --ads-border:#e6eaf2; --shadow:0 10px 22px rgba(2,8,23,.08);
     }
+    /* dark palette scaffold (비활성, 토글 대비) */
+    [data-theme="dark"]{
+      --bg:#0b1020; --panel:#0f1733; --line:#1a2550; --ink:#e9eefc; --muted:#b7c0de; --acc:#7aa2ff; --ok:#6be585; --chip:#0b122a; --ads:#0b122a; --ads-border:#2a3b75; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #1a2a6c33 0%, transparent 60%), var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Apple SD Gothic Neo,sans-serif}
+    body{
+      margin:0; color:var(--ink);
+      background:
+        radial-gradient(1000px 500px at 80% -10%, #dbeafe 0%, transparent 60%),
+        var(--bg);
+      font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Apple SD Gothic Neo,sans-serif;
+    }
     .wrap{max-width:1100px;margin:0 auto;padding:24px}
 
     header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 18px}
     .brand{display:flex;align-items:center;gap:14px}
-    .logo{width:48px;height:48px;display:grid;place-items:center;background:linear-gradient(135deg,#4a6cf7,#7aa2ff);border-radius:14px;box-shadow:0 10px 30px #1b2b6a66;font-weight:900}
+    .logo{width:48px;height:48px;display:grid;place-items:center;background:linear-gradient(135deg,#60a5fa,#2563eb);border-radius:14px;box-shadow:0 6px 20px rgba(37,99,235,.25);font-weight:900}
     .logo span{color:#fff}
     .title h1{margin:0;font-size:clamp(22px,3.4vw,32px)}
     .title p{margin:4px 0 0;color:var(--muted)}
 
     .search{display:flex;gap:10px;align-items:center;margin:12px 0 18px}
-    .search input{flex:1;padding:14px 14px 14px 42px;border-radius:14px;border:1px solid var(--line);background:#0b122a;color:var(--ink);outline:none}
-    .search input:focus{border-color:#4a6cf7;box-shadow:0 0 0 4px #4a6cf733}
+    .search input{flex:1;padding:14px 14px 14px 42px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--ink);outline:none}
+    .search input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
     .search .icon{position:relative}
-    .search .icon::before{content:"\1F50D";position:absolute;left:14px;top:50%;transform:translateY(-50%);}
+    .search .icon::before{content:"🔍";position:absolute;left:14px;top:50%;transform:translateY(-50%);}
 
-    .ads{display:grid;place-items:center;height:120px;border:1px dashed #2a3b75;border-radius:14px;color:#6f85c9;font-size:13px;margin:4px 0 18px}
+    .ads{display:grid;place-items:center;height:140px;border:1px dashed var(--ads-border);border-radius:14px;color:#7b8bbd;font-size:13px;margin:4px 0 18px;background:var(--ads)}
 
     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
     @media (max-width: 1024px){ .grid{grid-template-columns:repeat(3,1fr)} }
     @media (max-width: 760px){ .grid{grid-template-columns:repeat(2,1fr)} }
     @media (max-width: 480px){ .grid{grid-template-columns:1fr} }
 
-    .card{background:linear-gradient(180deg,var(--panel),#0e1630);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:transform .12s ease, filter .12s ease}
-    .card:hover{transform:translateY(-2px);filter:brightness(1.03)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s ease, transform .12s ease}
+    .card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
     .card .head{display:flex;align-items:center;gap:10px}
     .card .emoji{font-size:20px}
     .card h3{margin:0;font-size:16px}
     .card p{margin:0;color:var(--muted);font-size:13px}
     .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
-    .tag{font-size:11px;color:#aab7e9;background:#0b122a;border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+    .tag{font-size:11px;color:#3b4a6b;background:var(--chip);border:1px solid var(--line);padding:4px 8px;border-radius:999px}
     .goto{margin-top:10px;display:flex;justify-content:space-between;align-items:center}
     .goto a{color:var(--acc);text-decoration:none;font-weight:700}
-    .goto .new{color:#9dd9a8;font-size:12px}
+    .goto .new{color:var(--ok);font-size:12px}
 
     footer{margin:26px 0 0;color:var(--muted);font-size:13px}
 
-    .empty{display:none;align-items:center;justify-content:center;padding:28px;border:1px dashed var(--line);border-radius:14px;color:#95a3d6}
+    .empty{display:none;align-items:center;justify-content:center;padding:28px;border:1px dashed var(--line);border-radius:14px;color:#64748b;background:#fff}
+
+    /* 토글 버튼(현재 비표시, 구조만)
+    원할 때 토글을 보이게 하려면:
+
+CSS에서 .theme-toggle{ display:none; } → display:flex;로 변경
+
+document.getElementById('themeToggle') 클릭 핸들러의 주석 부분을 아래처럼 교체:
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const next = (document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  setTheme(next);
+});
+
+ */
+    .theme-toggle{display:none;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:12px}
   </style>
 </head>
 <body>
@@ -65,40 +91,85 @@
         <div class="logo" aria-hidden="true"><span>TS</span></div>
         <div class="title">
           <h1>툴서랍</h1>
-          <p>필요한 순간 꺼내 쓰는 <b>생활 계산기</b> </p>
+          <p>필요할 때 바로 쓰는 <b>생활 계산기</b></p>
         </div>
       </div>
-      <nav>
-        <a href="#" id="share" style="color:#7aa2ff;text-decoration:none">🔗 홈 링크 복사</a>
+      <nav style="display:flex; align-items:center; gap:8px">
+        <!-- 토글 자리(향후 노출 예정). 지금은 라이트 고정이라 숨김. -->
+        <button id="themeToggle" class="theme-toggle" aria-label="테마 전환" title="테마 전환">🌞 라이트</button>
+        <a href="#" id="share" style="color:var(--acc);text-decoration:none">🔗 홈 링크 복사</a>
       </nav>
     </header>
 
     <div class="search">
       <div class="icon"></div>
-      <input id="q" placeholder="검색: 만나이, D‑Day, BMI, 단위변환…" aria-label="계산기 검색" />
+      <input id="q" placeholder="검색: 만나이, D‑Day, BMI, 단위변환…" aria-label="계산기 검색" autocomplete="off" />
     </div>
 
-    <div class="ads">
+    <div class="ads" aria-label="광고 영역">
       <!-- 전면 상단 광고 슬롯 (원하면 사용) -->
-      <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="YYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script> -->
-      AdSense 상단 영역
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+      crossorigin="anonymous"></script>
+ <ins class="adsbygoogle"
+      style="display:block; text-align:center;"
+      data-ad-layout="in-article"
+      data-ad-format="fluid"
+      data-ad-client="ca-pub-6022794906780783"
+      data-ad-slot="8339091148"></ins>
+ <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+ </script>
     </div>
-
+<!-- 광고 끝 -->
     <section class="grid" id="grid" aria-label="도구 목록"></section>
 
     <div class="empty" id="empty">해당 키워드의 도구가 없어요. 다른 검색어를 입력해 보세요.</div>
-
-    <div class="ads" style="margin-top:18px">
-      중단 AdSense 영역
-    </div>
+  
+    <!-- 전면 상단 광고 슬롯 (원하면 사용) -->
+    <div class="ads" style="margin-top:18px" aria-label="광고 영역">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-6022794906780783"
+     data-ad-slot="8339091148"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+     </div>
+<!-- 광고 끝 -->
 
     <footer>
-      <p>© <span id="year"></span> 툴서랍 · <a href="/privacy.html" style="color:#7aa2ff">개인정보처리방침</a> · <a href="/terms.html" style="color:#7aa2ff">이용약관</a></p>
+      <p>© <span id="year"></span> 툴서랍 </p>
     </footer>
   </div>
 
   <script>
+    // ===== THEME SCAFFOLD (라이트 고정) =====
+    // 앞으로 토글을 켜고 싶을 때 사용할 함수들입니다.
+    const THEME_KEY = 'ts-theme';
+    function setTheme(theme){
+      // 현재는 라이트 고정. 다크 요청과 무관하게 항상 light로 강제합니다.
+      const t = 'light';
+      document.documentElement.setAttribute('data-theme', t);
+      try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+      const btn = document.getElementById('themeToggle');
+      if(btn){ btn.textContent = t === 'dark' ? '🌙 다크' : '🌞 라이트'; }
+    }
+    function getSavedTheme(){
+      try{ return localStorage.getItem(THEME_KEY) || 'light'; }catch(e){ return 'light'; }
+    }
+    // 토글 버튼은 현재 숨김 상태. 향후 노출 시 클릭 이벤트만 연결하면 됩니다.
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      /*토글 비활성화 시 여기랑 다음줄 주석처리*/ const next = (document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
+      /*토글 비활성화 시 여기 주석처리*/ setTheme(next);
+      /*setTheme('light'); */// 지금은 토글있음. 라이트 유지할 때 여기 실사용
+    });
+    setTheme(getSavedTheme());
+
+    // ===== APP LOGIC =====
     const tools = [
       {
         id:'age-now',
@@ -109,19 +180,44 @@
         tags:['나이','개월수','연령','생활']
       },
       {
-        id:'dday', name:'D‑Day 계산기', emoji:'📅', desc:'목표일까지 남은 날/주/월', href:'/dday/', tags:['날짜','카운트다운','디데이']
+        id:'dday', 
+        name:'D‑Day 계산기', 
+        emoji:'📅', 
+        desc:'목표일까지 남은 날/주/월', 
+        href:'/dday/', 
+        tags:['날짜','카운트다운','디데이']
       },
       {
-        id:'bmi', name:'BMI 계산기', emoji:'📏', desc:'키와 몸무게로 BMI & 범주', href:'/bmi/', tags:['건강','체중','지수']
+        id:'bmi', 
+        name:'BMI 계산기', 
+        emoji:'📏', 
+        desc:'키와 몸무게로 BMI & 범주', 
+        href:'/bmi/', 
+        tags:['건강','체중','지수']
       },
       {
-        id:'unit', name:'단위 변환기', emoji:'🔁', desc:'길이·무게·온도·속도 변환', href:'/unit/', tags:['변환','단위','공학']
+        id:'unit', 
+        name:'단위 변환기', 
+        emoji:'🔁', 
+        desc:'길이·무게·온도·속도 변환', 
+        href:'/unit/', 
+        tags:['변환','단위','길이']
       },
       {
-        id:'time-zone', name:'세계 시간대 변환', emoji:'🌍', desc:'도시 간 시차/회의시간 찾기', href:'/time/', tags:['시간','시차','회의']
+        id:'time-zone', 
+        name:'세계 시간대 변환', 
+        emoji:'🌍', 
+        desc:'도시 간 시차/회의시간 찾기', 
+        href:'/time/', 
+        tags:['시간','시차','회의']
       },
       {
-        id:'net-salary', name:'실수령액 계산(간단)', emoji:'💵', desc:'간단 계산(참고용)', href:'/salary/', tags:['급여','세금','참고']
+        id:'net-salary', 
+        name:'실수령액 계산(간단)', 
+        emoji:'💵', 
+        desc:'간단 계산(참고용)', 
+        href:'/salary/', 
+        tags:['급여','월급','세금']
       }
       // ✅ 여기 뒤로 계속 추가하면 자동으로 카드가 생성됩니다.
     ];
