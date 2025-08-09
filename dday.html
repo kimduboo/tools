@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>D-Day 계산기 | 툴서랍</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body {height: 100%; margin:0; padding:0;}
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+      padding:20px;
+      color:#1f2937;
+      position: relative;
+      background-color:#fafafa;
+    }
+    /* 스크롤해도 끊기지 않는 고정 그라데이션 */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, rgba(219,234,254,0) 60%),
+        linear-gradient(#fafafa, #eaeaea);
+      background-repeat: no-repeat, no-repeat;
+      background-size: 1600px 800px, auto;
+      background-position: right -200px top -180px, 0 0;
+    }
+
+    .container {max-width:560px; margin:0 auto; background:#fff; padding:20px; border-radius:14px; box-shadow:0 6px 20px rgba(2,8,23,.08); overflow:hidden}
+    .home-btn {display:inline-block; margin-bottom:10px; color:#2563eb; text-decoration:none; font-weight:700}
+    h1 {margin:0; text-align:center; font-size:22px}
+    .hint {margin:6px 0 14px; text-align:center; color:#6b7280; font-size:13px}
+
+    label {display:block; margin-top:12px; font-weight:700;}
+    input[type="text"] {width:100%; padding:12px 52px 12px 12px; font-size:16px; border:2px solid #e5e7eb; border-radius:12px; margin-top:4px; background:#fff}
+    input[type="text"]:focus{outline:none; border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+/*계산하기-초기화 버튼비율*/
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:14px;
+  flex-wrap:wrap;            /* 폭이 좁아지면 자동 줄바꿈 */
+}
+
+/* 기본은 2:1 비율 유지 (grow:shrink:basis) */
+.actions #calcBtn { flex: 2 1 0; min-width: 180px; }
+.actions #resetBtn{ flex: 1 1 0; min-width: 120px; }
+
+/* 아주 좁은 화면에서는 세로로 쌓고 각 버튼 100% 폭 */
+@media (max-width: 420px){
+  .actions #calcBtn,
+  .actions #resetBtn{
+    flex: 1 1 100%;
+  }
+}
+    /* 버튼 – 만나이 계산기와 동일 계열 */
+    .btn{display:inline-grid; place-items:center; padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff; color:#1f2937; cursor:pointer; font-weight:700; font-size:14px}
+    .btn:hover{filter:brightness(1.05)}
+    .btn.small{padding:6px 8px; border-radius:10px; font-size:12px}
+    .btn.primary{background:linear-gradient(135deg,#60a5fa,#2563eb); border-color:#2563eb; color:#fff}
+
+    .date-picker-wrapper {position:relative;}
+    .calendar-btn {position:absolute; right:6px; top:50%; transform:translateY(-50%); background:#fff; border:1px solid #e5e7eb; font-size:16px; cursor:pointer; border-radius:10px; padding:6px 10px}
+
+    .calendar {position:absolute; top:110%; left:0; right:0; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px; box-shadow:0 10px 22px rgba(2,8,23,.1); z-index:10; display:none}
+    .calendar .cal-header{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px}
+    .calendar .cal-title{flex:1; text-align:center; font-weight:800}
+    .calendar select {border:1px solid #e5e7eb; border-radius:8px; padding:6px 8px; background:#fff}
+    .calendar table {border-collapse:collapse; width:100%; font-size:14px}
+    .calendar th, .calendar td {text-align:center; padding:8px; cursor:pointer; border-radius:8px}
+    .calendar th{color:#64748b; font-weight:700}
+    .calendar td:hover {background:#f1f5ff;}
+
+    .actions{display:flex; gap:10px; margin-top:14px}
+
+    .result {margin-top:16px; padding:12px; background:#eef2ff; border-radius:12px; font-size:18px; display:none; justify-content:space-between; align-items:center;}
+
+    .kpi {display:none; margin-top:12px}
+    .kpi-grid {display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center}
+    .kpi-note {margin:10px 0 0; color:#6b7280; font-size:12px}
+
+    footer {margin:28px 0 0; text-align:center; color:#6b7280; font-size:14px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/index.html" class="home-btn">← 툴서랍 홈</a>
+    <h1>D-Day 계산기</h1>
+    <p class="hint">주, 개월, 남은 평일</p>
+
+    <label for="labelInput">이벤트명 (선택)</label>
+    <input id="labelInput" type="text" placeholder="예: 생일" />
+    
+    <label for="dateInput">목표 날짜</label>
+    <div class="date-picker-wrapper">
+      <input id="dateInput" type="text" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" autocomplete="off" aria-describedby="dateHelp" />
+      <button type="button" class="calendar-btn btn small" id="calendarBtn" aria-label="달력 열기">📅</button>
+      <div class="calendar" id="calendar" role="dialog" aria-modal="false" aria-label="달력 선택기"></div>
+      <div id="dateHelp" class="hint" style="margin:6px 0 0; text-align:left">예: 20251209 → 자동으로 2025-12-09로 포맷됩니다.</div>
+    </div>
+
+    <div class="actions">
+        <button id="calcBtn" class="btn primary">계산하기</button>
+        <button id="resetBtn" class="btn">초기화</button>
+      </div>
+      
+    
+    <div id="resultBox" class="result">
+      <span id="resultText"></span>
+      <button class="btn small" id="copyBtn">복사</button>
+    </div>
+
+    <!-- KPI 블록 -->
+    <div id="kpiBox" class="kpi">
+      <div class="kpi-grid">
+        <div>남은 날</div>       <b id="k_days">-</b>      <button class="btn small" data-copy="k_days">복사</button>
+        <div>주 (근사)</div>     <b id="k_weeks">-</b>     <button class="btn small" data-copy="k_weeks">복사</button>
+        <div>개월 (근사)</div>   <b id="k_months">-</b>    <button class="btn small" data-copy="k_months">복사</button>
+        <div>남은 평일</div>     <b id="k_biz">-</b>       <button class="btn small" data-copy="k_biz">복사</button>
+      </div>
+      <p class="kpi-note">※ <b>남은 날</b>을 제외한 <b>주/개월/평일</b> 항목은 근사치입니다.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>© <span id="year"></span> 툴서랍 </p>
+  </footer>
+
+  <script>
+    // ===== 입력 포맷: 20251209 -> 2025-12-09
+    const dateInput = document.getElementById('dateInput');
+    dateInput.addEventListener('input', function(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 4) v = v.slice(0,4) + '-' + v.slice(4);
+      if (v.length > 7) v = v.slice(0,7) + '-' + v.slice(7, 9);
+      e.target.value = v;
+      // 달력이 열려 있으면 입력 기준으로 즉시 갱신
+      syncCalendarFromInput();
+    });
+
+    // ===== 달력: 연/월 드롭다운 + 중앙 타이틀
+    function buildCalendar(year, month) {
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+
+      const header = document.createElement('div');
+      header.className = 'cal-header';
+
+      const yearSelect = document.createElement('select');
+      for (let y = year - 50; y <= year + 50; y++) {
+        const opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        if (y === year) opt.selected = true;
+        yearSelect.appendChild(opt);
+      }
+
+      const monthSelect = document.createElement('select');
+      for (let m = 0; m < 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m; opt.textContent = m + 1;
+        if (m === month) opt.selected = true;
+        monthSelect.appendChild(opt);
+      }
+
+      const left = document.createElement('div');
+      left.appendChild(yearSelect);
+      left.appendChild(monthSelect);
+
+      const title = document.createElement('div');
+      title.className = 'cal-title';
+      title.id = 'calTitle';
+      title.textContent = `${year}년 ${String(month+1).padStart(2,'0')}월`;
+
+      const right = document.createElement('div'); right.style.width = '1px';
+
+      header.appendChild(left); header.appendChild(title); header.appendChild(right);
+      calendar.appendChild(header);
+
+      const table = document.createElement('table');
+      const days = ['일','월','화','수','목','금','토'];
+      const thead = document.createElement('thead');
+      const tr = document.createElement('tr');
+      days.forEach(d=>{ const th = document.createElement('th'); th.textContent = d; tr.appendChild(th); });
+      thead.appendChild(tr); table.appendChild(thead);
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month+1, 0).getDate();
+
+      const tbody = document.createElement('tbody');
+      let row = document.createElement('tr');
+      for (let i = 0; i < firstDay; i++) row.appendChild(document.createElement('td'));
+
+      for (let d = 1; d <= lastDate; d++) {
+        const td = document.createElement('td');
+        td.textContent = d;
+        td.addEventListener('click', () => {
+          const mm = String(month+1).padStart(2,'0');
+          const dd = String(d).padStart(2,'0');
+          dateInput.value = `${year}-${mm}-${dd}`;
+          calendar.style.display = 'none';
+        });
+        row.appendChild(td);
+        if ((firstDay + d) % 7 === 0) { tbody.appendChild(row); row = document.createElement('tr'); }
+      }
+      tbody.appendChild(row); table.appendChild(tbody); calendar.appendChild(table);
+
+      const update = () => {
+        const y = parseInt(yearSelect.value,10);
+        const m = parseInt(monthSelect.value,10);
+        buildCalendar(y, m);
+      };
+      yearSelect.addEventListener('change', update);
+      monthSelect.addEventListener('change', update);
+    }
+
+    // 달력 열기/닫기 및 외부 클릭 닫기
+    const calendarBtn = document.getElementById('calendarBtn');
+    calendarBtn.addEventListener('click', () => {
+      const cal = document.getElementById('calendar');
+      if (cal.style.display === 'none' || cal.style.display === '') {
+        const base = getInputOrToday();
+        buildCalendar(base.y, base.m);
+        cal.style.display = 'block';
+      } else { cal.style.display = 'none'; }
+    });
+    document.addEventListener('click', (e) => {
+      const wrap = document.querySelector('.date-picker-wrapper');
+      if (!wrap.contains(e.target)) document.getElementById('calendar').style.display = 'none';
+    });
+
+    function getInputOrToday(){
+      const v = dateInput.value;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(v)) { const [y,m,d]=v.split('-').map(Number); return {y, m:m-1, d}; }
+      const t = new Date(); return {y:t.getFullYear(), m:t.getMonth(), d:t.getDate()};
+    }
+    function syncCalendarFromInput(){
+      const cal = document.getElementById('calendar');
+      if(cal.style.display==='block'){
+        const base = getInputOrToday();
+        buildCalendar(base.y, base.m);
+      }
+    }
+
+    // ===== KPI 계산 보조 =====
+    function countBusinessDays(startDate, endDate){
+      let count = 0; const one = 86400000;
+      let t = new Date(startDate.getTime() + one); // 다음 날부터 카운트
+      while(t <= endDate){ const d = t.getDay(); if(d!==0 && d!==6) count++; t = new Date(t.getTime()+one); }
+      return count;
+    }
+    function setKpis(absDays, bizDays){
+      document.getElementById('k_days').textContent = `${absDays}일`;
+      document.getElementById('k_weeks').textContent = `${(absDays/7).toFixed(1)}주`;
+      document.getElementById('k_months').textContent = `${(absDays/30).toFixed(1)}개월`;
+      document.getElementById('k_biz').textContent = `${bizDays}일`;
+      document.getElementById('kpiBox').style.display = 'block';
+    }
+    function bindKpiCopyButtons(){
+      document.querySelectorAll('[data-copy]').forEach(btn=>{
+        btn.onclick = ()=>{
+          const id = btn.getAttribute('data-copy');
+          const txt = document.getElementById(id).textContent.trim();
+          navigator.clipboard.writeText(txt).then(()=>{ const old=btn.textContent; btn.textContent='✅'; setTimeout(()=>btn.textContent=old,900); });
+        };
+      });
+    }
+
+    // ===== 계산 버튼: D-0(D-day) 표기 + KPI 생성 =====
+    document.getElementById('calcBtn').addEventListener('click', function(){
+      const label = document.getElementById('labelInput').value.trim();
+      const dateStr = dateInput.value;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) { alert('날짜를 YYYY-MM-DD 형식으로 입력하세요.'); return; }
+      const target = new Date(dateStr);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diff = Math.floor((target - today)/86400000); // 내일=1, 오늘=0, 어제=-1
+
+      const head = diff===0 ? 'D-0 (D-day)' : (diff>0 ? `D-${diff}일` : `D+${Math.abs(diff)}일`);
+      const text = label ? `${label}: ${head}` : head;
+      document.getElementById('resultText').textContent = text;
+      document.getElementById('resultBox').style.display = 'flex';
+
+      const abs = Math.abs(diff);
+      const biz = countBusinessDays(today, target);
+      setKpis(abs, biz);
+      bindKpiCopyButtons();
+    });
+
+    // 결과 복사 (헤드라인)
+    document.getElementById('copyBtn').addEventListener('click', function(){
+      const text = document.getElementById('resultText').textContent;
+      navigator.clipboard.writeText(text).then(()=>{ const b=this; const old=b.textContent; b.textContent='✅'; setTimeout(()=>b.textContent=old,900); });
+    });
+
+    // 초기화 버튼
+    document.getElementById('resetBtn').addEventListener('click', function(){
+      document.getElementById('labelInput').value='';
+      dateInput.value='';
+      document.getElementById('resultBox').style.display='none';
+      document.getElementById('kpiBox').style.display='none';
+      document.getElementById('calendar').style.display='none';
+    });
+
+    // 푸터 연도
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
