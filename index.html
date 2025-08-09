@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>툴서랍 – 필요한 순간 꺼내 쓰는 생활 계산기</title>
+  <meta name="description" content="만나이, 디데이, BMI, 단위 변환 등 생활에 유용한 도구를 한곳에 - 빠르고 가벼운 반응형 웹사이트" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='18' width='100' height='100' fill='%23111834'/%3E%3Ctext x='50' y='62' font-size='50' text-anchor='middle' fill='white'%3E%F0%9F%95%9A%EF%B8%8F%3C/text%3E%3C/svg%3E"/>
+
+  <!-- (선택) AdSense 전역 스니펫: 승인 후 주석 해제하고 client 교체하면 전체 페이지 자동 광고 동작 -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
+
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --line:#1a2550; --ink:#e9eefc; --muted:#b7c0de; --acc:#7aa2ff; --ok:#6be585;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #1a2a6c33 0%, transparent 60%), var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Apple SD Gothic Neo,sans-serif}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 18px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{width:48px;height:48px;display:grid;place-items:center;background:linear-gradient(135deg,#4a6cf7,#7aa2ff);border-radius:14px;box-shadow:0 10px 30px #1b2b6a66;font-weight:900}
+    .logo span{color:#fff}
+    .title h1{margin:0;font-size:clamp(22px,3.4vw,32px)}
+    .title p{margin:4px 0 0;color:var(--muted)}
+
+    .search{display:flex;gap:10px;align-items:center;margin:12px 0 18px}
+    .search input{flex:1;padding:14px 14px 14px 42px;border-radius:14px;border:1px solid var(--line);background:#0b122a;color:var(--ink);outline:none}
+    .search input:focus{border-color:#4a6cf7;box-shadow:0 0 0 4px #4a6cf733}
+    .search .icon{position:relative}
+    .search .icon::before{content:"\1F50D";position:absolute;left:14px;top:50%;transform:translateY(-50%);}
+
+    .ads{display:grid;place-items:center;height:120px;border:1px dashed #2a3b75;border-radius:14px;color:#6f85c9;font-size:13px;margin:4px 0 18px}
+
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    @media (max-width: 1024px){ .grid{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width: 760px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width: 480px){ .grid{grid-template-columns:1fr} }
+
+    .card{background:linear-gradient(180deg,var(--panel),#0e1630);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:transform .12s ease, filter .12s ease}
+    .card:hover{transform:translateY(-2px);filter:brightness(1.03)}
+    .card .head{display:flex;align-items:center;gap:10px}
+    .card .emoji{font-size:20px}
+    .card h3{margin:0;font-size:16px}
+    .card p{margin:0;color:var(--muted);font-size:13px}
+    .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+    .tag{font-size:11px;color:#aab7e9;background:#0b122a;border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+    .goto{margin-top:10px;display:flex;justify-content:space-between;align-items:center}
+    .goto a{color:var(--acc);text-decoration:none;font-weight:700}
+    .goto .new{color:#9dd9a8;font-size:12px}
+
+    footer{margin:26px 0 0;color:var(--muted);font-size:13px}
+
+    .empty{display:none;align-items:center;justify-content:center;padding:28px;border:1px dashed var(--line);border-radius:14px;color:#95a3d6}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><span>TS</span></div>
+        <div class="title">
+          <h1>툴서랍</h1>
+          <p>필요한 순간 꺼내 쓰는 <b>생활 계산기</b> </p>
+        </div>
+      </div>
+      <nav>
+        <a href="#" id="share" style="color:#7aa2ff;text-decoration:none">🔗 홈 링크 복사</a>
+      </nav>
+    </header>
+
+    <div class="search">
+      <div class="icon"></div>
+      <input id="q" placeholder="검색: 만나이, D‑Day, BMI, 단위변환…" aria-label="계산기 검색" />
+    </div>
+
+    <div class="ads">
+      <!-- 전면 상단 광고 슬롯 (원하면 사용) -->
+      <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="YYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script> -->
+      AdSense 상단 영역
+    </div>
+
+    <section class="grid" id="grid" aria-label="도구 목록"></section>
+
+    <div class="empty" id="empty">해당 키워드의 도구가 없어요. 다른 검색어를 입력해 보세요.</div>
+
+    <div class="ads" style="margin-top:18px">
+      중단 AdSense 영역
+    </div>
+
+    <footer>
+      <p>© <span id="year"></span> 툴서랍 · <a href="/privacy.html" style="color:#7aa2ff">개인정보처리방침</a> · <a href="/terms.html" style="color:#7aa2ff">이용약관</a></p>
+    </footer>
+  </div>
+
+  <script>
+    const tools = [
+      {
+        id:'age-now',
+        name:'만나이 계산기',
+        emoji:'🎂',
+        desc:'생년월일로 만나이, 개월수(4;1)까지',
+        href:'/age/', // 배포 경로에 맞게 조정
+        tags:['나이','개월수','연령','생활']
+      },
+      {
+        id:'dday', name:'D‑Day 계산기', emoji:'📅', desc:'목표일까지 남은 날/주/월', href:'/dday/', tags:['날짜','카운트다운','디데이']
+      },
+      {
+        id:'bmi', name:'BMI 계산기', emoji:'📏', desc:'키와 몸무게로 BMI & 범주', href:'/bmi/', tags:['건강','체중','지수']
+      },
+      {
+        id:'unit', name:'단위 변환기', emoji:'🔁', desc:'길이·무게·온도·속도 변환', href:'/unit/', tags:['변환','단위','공학']
+      },
+      {
+        id:'time-zone', name:'세계 시간대 변환', emoji:'🌍', desc:'도시 간 시차/회의시간 찾기', href:'/time/', tags:['시간','시차','회의']
+      },
+      {
+        id:'net-salary', name:'실수령액 계산(간단)', emoji:'💵', desc:'간단 계산(참고용)', href:'/salary/', tags:['급여','세금','참고']
+      }
+      // ✅ 여기 뒤로 계속 추가하면 자동으로 카드가 생성됩니다.
+    ];
+
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+
+    function card(t){
+      const a = document.createElement('a');
+      a.href = t.href; a.style.textDecoration='none'; a.setAttribute('aria-label', t.name);
+      a.innerHTML = `
+        <article class="card">
+          <div class="head"><div class="emoji" aria-hidden="true">${t.emoji}</div><h3>${t.name}</h3></div>
+          <p>${t.desc}</p>
+          <div class="tags">${t.tags.map(x=>`<span class='tag'>${x}</span>`).join('')}</div>
+          <div class="goto"><a href="${t.href}">바로가기 →</a><span class="new">${t.new? 'NEW':''}</span></div>
+        </article>`;
+      return a;
+    }
+
+    function render(list){
+      grid.innerHTML='';
+      list.forEach(t=>grid.appendChild(card(t)));
+      empty.style.display = list.length? 'none':'flex';
+    }
+
+    function filter(q){
+      q = q.trim().toLowerCase();
+      if(!q) return tools;
+      return tools.filter(t=> (t.name + ' ' + t.desc + ' ' + t.tags.join(' ')).toLowerCase().includes(q));
+    }
+
+    document.getElementById('q').addEventListener('input', (e)=>{
+      render(filter(e.target.value));
+    });
+
+    document.getElementById('share').addEventListener('click', (e)=>{
+      e.preventDefault();
+      navigator.clipboard.writeText(location.href).then(()=>{
+        const el=e.currentTarget; const old=el.textContent; el.textContent='✅ 복사됨'; setTimeout(()=>el.textContent=old,1000);
+      });
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+    render(tools);
+  </script>
+</body>
+</html>
