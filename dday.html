@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>D-Day 계산기 | 툴서랍</title>
   <meta name="description" content="목표 날짜를 입력하면 KST 기준으로 D-Day(D-0/D-/D+), 남은 날·주·개월(근사)·평일 수를 제공합니다." />
-  <!-- (선택) AdSense 전역 스니펫 -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783" crossorigin="anonymous"></script>
 
   <style>
@@ -19,7 +18,6 @@
       margin:0;color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Apple SD Gothic Neo,sans-serif;
       position:relative;background-color:#fafafa;
     }
-    /* 고정 그라데이션 배경 */
     body::before{
       content:"";position:fixed;inset:0;z-index:-1;
       background:radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, transparent 60%), linear-gradient(#fafafa,#eaeaea);
@@ -27,14 +25,17 @@
     }
 
     .wrap{max-width:1200px;margin:0 auto;padding:24px;overflow:visible}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 18px}
-    .brand{display:flex;align-items:center;gap:14px}
+
+    /* 헤더: 로고(좌=홈 링크) | 타이틀(가운데) | 오른쪽은 비움으로 균형 */
+    header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:6px 0 18px}
+    a.brand-left{display:flex;align-items:center;gap:14px;justify-self:start;text-decoration:none}
     .logo{width:44px;height:44px;display:grid;place-items:center;background:linear-gradient(135deg,#60a5fa,#2563eb);border-radius:14px;box-shadow:0 6px 18px rgba(37,99,235,.25);font-weight:900;color:#fff}
+    .title{justify-self:center;text-align:center}
     .title h1{margin:0;font-size:clamp(20px,3vw,28px)}
     .title p{margin:4px 0 0;color:var(--muted);font-size:14px}
-    .back{color:var(--acc);text-decoration:none}
+    .spacer{justify-self:end}
 
-    /* 한 컬럼 레이아웃 + 가운데 60% 폭 */
+    /* 본문 레이아웃 */
     main{display:grid;grid-template-columns:1fr;gap:20px}
     .center{width:60%; min-width:320px; max-width:900px; margin:0 auto;}
     @media (max-width:860px){ .center{width:100%} }
@@ -45,14 +46,12 @@
     .field{display:flex;flex-direction:column;gap:10px;margin:12px 0}
     label{font-weight:700}
 
-    /* 입력 박스 공통 (이벤트명 포함) */
     .field input[type="text"]{
       width:100%;background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;
       padding:16px 14px;outline:none;font-size:18px;letter-spacing:.5px
     }
     .field input[type="text"]:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
 
-    /* 날짜 입력 + 아이콘 */
     .datebox{position:relative}
     .datebox input{padding-right:64px}
     .calbtn{
@@ -61,7 +60,6 @@
     }
     .calbtn:focus-visible{outline:2px solid rgba(37,99,235,.45);outline-offset:2px}
 
-    /* 달력 */
     .picker{
       position:absolute;left:0;right:0;top:calc(100% + 8px);
       background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px;display:none;
@@ -73,7 +71,6 @@
     .picker select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}
     .navbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
 
-    /* 달력 표 동일 폭/높이 */
     .picker table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
     .picker th,.picker td{width:14.285%;text-align:center}
     .picker th{color:#64748b;font-weight:700;padding:8px 0}
@@ -81,7 +78,6 @@
     .picker td:hover{background:#eef2ff}
     .picker td.empty{visibility:hidden}
 
-    /* 버튼 2:1 */
     .btn{display:inline-grid;place-items:center;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#000;cursor:pointer;font-weight:700;font-size:14px}
     .btn:hover{filter:brightness(1.05)}
     .btn.small{padding:6px 8px;border-radius:10px;font-size:12px}
@@ -91,7 +87,6 @@
     .actions #resetBtn{flex:1 1 0;min-width:120px}
     @media (max-width:420px){.actions #calcBtn,.actions #resetBtn{flex:1 1 100%}}
 
-    /* 결과 */
     .result-wrap{display:none}
     .result{display:grid;gap:12px}
     .flex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -110,14 +105,17 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">TS</div>
-        <div class="title">
-          <h1>D-Day 계산기</h1>
-          <p>남은 날/주/개월(근사) · 평일</p>
-        </div>
+      <!-- 로고를 홈 링크로 -->
+      <a href="https://tools.joyful101.com/" class="brand-left" aria-label="툴서랍 홈">
+        <div class="logo" aria-hidden="true">Tool</div>
+      </a>
+      <!-- 제목/설명 중앙 정렬 -->
+      <div class="title">
+        <h1>D-Day 계산기</h1>
+        <p>남은 날/주/개월/평일</p>
       </div>
-      <nav><a href="https://tools.joyful101.com/" class="back">🏠 툴서랍 홈</a></nav>
+      <!-- 오른쪽은 비워서 균형 -->
+      <div class="spacer" aria-hidden="true"></div>
     </header>
 
     <main>
@@ -144,7 +142,8 @@
           <button id="calcBtn" class="btn primary" aria-label="D-Day 계산하기">계산하기</button>
           <button id="resetBtn" class="btn" aria-label="입력 초기화">초기화</button>
         </div>
-
+        <p></p>
+        <center>
         <div id="adTop"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
           crossorigin="anonymous"></script>
      <!-- 중간 수평 디스플레이 -->
@@ -156,7 +155,9 @@
           data-full-width-responsive="true"></ins>
      <script>
           (adsbygoogle = window.adsbygoogle || []).push({});
-     </script></div>
+     </script>  
+        </div>
+        </center> 
       </section>
 
       <!-- 결과: 아래에 동일 폭으로 -->
@@ -170,7 +171,6 @@
             <button class="btn small" id="copyHeadline" aria-label="D-Day 복사">복사</button>
           </div>
 
-          <!-- YYYY-MM-DD (이벤트명) + 복사 -->
           <div class="flex space">
             <div class="muted copyable" id="subline">-</div>
             <button class="btn small" id="copySubline">복사</button>
@@ -194,19 +194,16 @@
   </div>
 
   <script>
-    // ===== KST 유틸 =====
     const KST='Asia/Seoul';
     const fmtNow=new Intl.DateTimeFormat('ko-KR',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     const fmtYMD=new Intl.DateTimeFormat('en-CA',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit'});
     function zonedYMD(d){ const [y,m,dd]=fmtYMD.format(new Date(d)).split('-').map(Number); return {y, m, d: dd}; }
 
-    // ===== 입력 포맷 =====
     const dateInput=document.getElementById('date');
     function formatYMD(v){ v=(v||'').replace(/\D/g,'').slice(0,8); if(v.length>4)v=v.slice(0,4)+'-'+v.slice(4); if(v.length>7)v=v.slice(0,7)+'-'+v.slice(7,9); return v; }
     dateInput.addEventListener('input',(e)=>{ e.target.value=formatYMD(e.target.value); syncCalendarFromInput(); });
     dateInput.addEventListener('blur',(e)=>{ e.target.value=formatYMD(e.target.value); });
 
-    // ===== 달력 위젯 =====
     const picker=document.getElementById('picker');
     function getInputYMDOrToday(){ const v=dateInput.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number); return {y,m,d};} return zonedYMD(new Date()); }
 
@@ -257,7 +254,6 @@
       prevBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10); mm--; if(mm<0){mm=11; yy--;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm); });
       nextBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10); mm++; if(mm>11){mm=0; yy++;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm); });
 
-      // 내부 클릭은 닫힘 방지 (계속 유지)
       picker.addEventListener('pointerdown',(e)=>e.stopPropagation());
     }
 
@@ -273,7 +269,6 @@
     document.addEventListener('pointerdown',(e)=>{ const box=document.querySelector('.datebox'); if(!box.contains(e.target)) closePicker(); });
     function syncCalendarFromInput(){ if(picker.style.display==='block'){ const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1); } }
 
-    // ===== 계산/표시 =====
     function fmtSigned(n,d=1){
       const v=Number(n.toFixed(d));
       return (Object.is(v,-0)?0:v).toFixed(d);
@@ -285,7 +280,7 @@
       const todayUTC=new Date(Date.UTC(cy,cm-1,cd));
       const [ty,tm,td]=targetStr.split('-').map(Number);
       const targetUTC=new Date(Date.UTC(ty,tm-1,td));
-      const diff=Math.ceil((targetUTC - todayUTC)/86400000); // 미래 양수 / 오늘 0 / 과거 음수
+      const diff=Math.ceil((targetUTC - todayUTC)/86400000);
       return { diff, todayUTC, targetUTC };
     }
 
@@ -302,15 +297,12 @@
       if(!r){ alert('목표 날짜를 YYYY-MM-DD 형식으로 입력하세요.'); return; }
       const {diff,todayUTC,targetUTC}=r;
 
-      // 헤드라인
       const head = diff===0 ? 'D-0 (D-day)' : (diff>0 ? `D-${diff}` : `D+${Math.abs(diff)}`);
       document.getElementById('headline').textContent=head;
 
-      // YYYY-MM-DD (이벤트명)
       const combined = label ? `${date} (${label})` : date;
       document.getElementById('subline').textContent = combined;
 
-      // 수치(지났으면 음수, 당일 0, 미래 양수)
       const weeks = fmtSigned(diff/7)+'주';
       const months = fmtSigned(diff/30)+'개월';
       const biz   = diff>=0 ? countBizForward(todayUTC,targetUTC) : -countBizForward(targetUTC,todayUTC);
@@ -333,7 +325,6 @@
       });
     }
 
-    // 이벤트
     document.getElementById('calcBtn').addEventListener('click',render);
     document.getElementById('resetBtn').addEventListener('click',()=>{
       document.getElementById('label').value=''; dateInput.value='';
