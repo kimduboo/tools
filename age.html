@@ -3,132 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>만나이(생활연령) 계산기 | 툴서랍</title>
+  <title>만나이(생활연령) 계산기 | Tool Box</title>
   <meta name="description" content="생년월일을 입력하면 KST 기준으로 만나이, 다음 생일까지 D-Day, 살아온 날, 개월수 표기를 제공합니다." />
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783" crossorigin="anonymous"></script>
-
-  <style>
-    :root{
-      --bg:#f7f9fd; --panel:#ffffff; --line:#e6eaf2; --ink:#1f2a37; --muted:#6b7280; --acc:#2563eb;
-      --shadow:0 10px 22px rgba(2,8,23,.08);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Apple SD Gothic Neo,sans-serif;
-      position:relative;background-color:#fafafa;
-    }
-    /* 고정 그라데이션 배경 */
-    body::before{
-      content:"";position:fixed;inset:0;z-index:-1;
-      background:radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, transparent 60%), linear-gradient(#fafafa,#eaeaea);
-      background-repeat:no-repeat,no-repeat;background-size:1600px 800px,auto;background-position:right -200px top -180px,0 0;
-    }
-
-    .wrap{max-width:960px;margin:0 auto;padding:24px;overflow:visible}
-
-    /* 헤더: 로고(좌=홈 링크) | 타이틀(가운데) | 오른쪽은 빈 공간으로 균형 */
-    header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:6px 0 18px}
-/* 좌측 로고 배지 */
-a.brand{justify-self:start; text-decoration:none; color:inherit; display:flex; align-items:center;}
-.logo{
-  width:56px; height:56px; border-radius:16px;
-  display:grid; place-items:center;
-  background:linear-gradient(135deg,#60a5fa,#2563eb);
-  box-shadow:0 10px 22px rgba(37,99,235,.25);
-}
-.logo .logo-text{
-  color:#fff; font-weight:900; text-align:center;
-  line-height:1.05; letter-spacing:-.2px; /* 글자 간격 살짝 조정 */
-  font-size:15px;  /* 필요하면 14~16px 사이로 */
-}    .title{justify-self:center;text-align:center}
-    .title h1{margin:0;font-size:clamp(20px,3vw,28px)}
-    .title p{margin:4px 0 0;color:var(--muted);font-size:14px}
-    .spacer{justify-self:end} /* 오른쪽 균형용 빈 칸 */
-/* 광고 슬롯(형식 X) */
-.ad-slot {
-  margin: 12px 0;
-  padding: 0;              /* 안쪽 여백 제거 */
-  background: transparent; /* 배경 투명 */
-  border: none;            /* 테두리 제거 */
-  border-radius: 0;        /* 모서리 둥글기 제거 */
-  overflow: hidden;        /* 광고가 넘치면 숨김 */
-}
-
-/* 광고 크기를 부모에 맞게 축소 */
-.ad-slot > ins.adsbygoogle {
-  display:inline-block !important;
-  max-width:100% !important;
-  height:auto !important;
-}
-
-.ad-slot iframe {
-  max-width:100% !important;
-  height:auto !important;
-}
-
-    /* 입력은 가운데 60% */
-    main{display:flex;flex-direction:column;align-items:center;gap:24px}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:20px;overflow:visible;width:60%}
-    @media (max-width: 860px){ .card{width:100%} }
-    .card h2{margin:0 0 12px;font-size:18px}
-    .field{display:flex;flex-direction:column;gap:10px;margin:12px 0}
-    label{font-weight:700}
-
-    .datebox{position:relative}
-    .datebox input{
-      width:100%;background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;
-      padding:16px 64px 16px 14px; /* 아이콘 공간 */
-      outline:none;font-size:18px;letter-spacing:.5px
-    }
-    .datebox input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
-    .calbtn{
-      position:absolute;right:8px;top:50%;transform:translateY(-50%);
-      width:40px;height:40px;display:grid;place-items:center;border-radius:10px;border:0;background:transparent;cursor:pointer;line-height:0;
-      font-size:20px;
-    }
-    .calbtn:focus-visible{outline:2px solid rgba(37,99,235,.45);outline-offset:2px}
-    .picker{
-      position:absolute;left:0;right:0;top:calc(100% + 8px);
-      background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px;display:none;
-      z-index:9999;max-height:70vh;overflow:auto
-    }
-    .picker.above{top:auto;bottom:calc(100% + 8px)}
-    .picker .cal-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
-    .picker .cal-title{font-weight:800}
-    .picker select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}
-    .navbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
-    .picker table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
-    .picker th,.picker td{width:14.285%;text-align:center}
-    .picker th{color:#64748b;font-weight:700;padding:8px 0}
-    .picker td{cursor:pointer;height:40px;line-height:40px;border-radius:8px}
-    .picker td:hover{background:#eef2ff}
-    .picker td.empty{visibility:hidden}
-
-    .btn{display:inline-grid;place-items:center;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#000;cursor:pointer;font-weight:700;font-size:14px}
-    .btn:hover{filter:brightness(1.05)}
-    .btn.small{padding:6px 8px;border-radius:10px;font-size:12px}
-    .btn.primary{background:linear-gradient(135deg,#60a5fa,#2563eb);border-color:#2563eb;color:#fff}
-    .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-    .actions #calcBtn{flex:2 1 0;min-width:180px}
-    .actions #resetBtn{flex:1 1 0;min-width:120px}
-    @media (max-width:420px){.actions #calcBtn,.actions #resetBtn{flex:1 1 100%}}
-
-    .result-wrap{display:none}
-    .result{display:grid;gap:12px}
-    .headline{display:flex;align-items:center;justify-content:space-between;background:#eef2ff;border-radius:12px;padding:12px;font-weight:800;font-size:20px}
-    .kpi-line{display:flex;align-items:center;justify-content:space-between;border:1px dashed var(--line);border-radius:16px;padding:14px;background:#fff}
-    .muted{color:#6b7280}
-
-    footer{margin:24px 0 0;color:var(--muted);font-size:13px;text-align:center}
-    .copyable{user-select:all}
-  </style>
+  <script src="ads.js"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="wrap">
     <header>
       <!-- 로고를 홈 링크로 -->
-      <a class="brand" href="https://tools.joyful101.com/" aria-label="툴서랍 홈">
+      <a class="brand" href="https://tools.joyful101.com/" aria-label="Tool Box 홈">
         <div class="logo" aria-hidden="true">
           <span class="logo-text">Tool<br>Box</span>
         </div>
@@ -140,7 +24,7 @@ a.brand{justify-self:start; text-decoration:none; color:inherit; display:flex; a
       <div class="spacer" aria-hidden="true"></div>
     </header>
 
-    <main>
+    <main class="age-main">
       <!-- 입력 카드 -->
       <section class="card" aria-labelledby="calcTitle">
         <h2 id="calcTitle">입력</h2>
@@ -159,23 +43,23 @@ a.brand{justify-self:start; text-decoration:none; color:inherit; display:flex; a
           <button id="calcBtn" class="btn primary">계산하기</button>
           <button id="resetBtn" class="btn">초기화</button>
         </div>
-<p></p>
-    <center>
-        <div class=ad-slot id="adTop">
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
-          crossorigin="anonymous"></script>
-     <!-- 중간 수평 디스플레이 -->
-     <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-6022794906780783"
-          data-ad-slot="6135885040"
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
-     <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-     </script>
+        <p></p>
+        <center>
+        <div class="ad-slot" id="adTop">
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+            crossorigin="anonymous"></script>
+          <!-- 중간 수평 디스플레이 -->
+          <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-6022794906780783"
+            data-ad-slot="6135885040"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
         </div>
-     </center>
+        </center>
       </section>
 
       <!-- 결과 카드 -->
@@ -236,7 +120,7 @@ a.brand{justify-self:start; text-decoration:none; color:inherit; display:flex; a
       </section>
     </main>
 
-    <footer><p>© <span id="year"></span> 툴서랍 </p></footer>
+    <footer><p>© <span id="year"></span> Tool Box </p></footer>
   </div>
 
   <script>

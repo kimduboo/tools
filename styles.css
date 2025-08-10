@@ -1,0 +1,633 @@
+/* ===== CSS Variables ===== */
+:root {
+    --bg: #f7f9fd;
+    --panel: #ffffff;
+    --line: #e6eaf2;
+    --ink: #1f2a37;
+    --muted: #6b7280;
+    --acc: #2563eb;
+    --ok: #16a34a;
+    --chip: #f3f6ff;
+    --ads: #ffffff;
+    --ads-border: #e6eaf2;
+    --shadow: 0 10px 22px rgba(2, 8, 23, 0.08);
+  }
+  
+  /* ===== Reset & Base ===== */
+  * {
+    box-sizing: border-box;
+  }
+  
+  html,
+  body {
+    height: 100%;
+  }
+  
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    position: relative;
+    background-color: #fafafa;
+  }
+  
+  /* ===== 고정 그라데이션 배경 ===== */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, rgba(219, 234, 254, 0) 60%),
+                linear-gradient(#fafafa, #eaeaea);
+    background-repeat: no-repeat, no-repeat;
+    background-size: 1600px 800px, auto;
+    background-position: right -200px top -180px, 0 0;
+  }
+  
+  /* ===== 공통 레이아웃 ===== */
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    overflow: visible;
+  }
+  
+  /* ===== Header ===== */
+  header,
+  header.app-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0 20px;
+  }
+  
+  /* 로고 브랜드 */
+  a.brand {
+    justify-self: start;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+  }
+  
+  .logo .logo-text {
+    color: #fff;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.05;
+    letter-spacing: -0.2px;
+    font-size: 15px;
+  }
+  
+  /* 타이틀 */
+  .title {
+    justify-self: center;
+    text-align: center;
+  }
+  
+  .title h1 {
+    margin: 0;
+    font-size: clamp(20px, 3vw, 28px);
+  }
+  
+  .title p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  
+  /* 메인 페이지 슬로건 스타일 */
+  .title p b {
+    color: #374151;
+    font-weight: 1000;
+  }
+  
+  .spacer {
+    justify-self: end;
+  }
+  
+  /* 액션 영역 */
+  nav.actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .theme-toggle {
+    display: none;
+  }
+  
+  /* ===== 검색 ===== */
+  .search {
+    position: relative;
+    margin: 12px 0;
+  }
+  
+  .search::before {
+    content: "🔍";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  
+  .search input {
+    width: 100%;
+    padding: 14px 14px 14px 42px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+  }
+  
+  .search input:focus {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  }
+  
+  /* ===== 광고 슬롯 ===== */
+  .ad-slot {
+    margin: 12px 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  
+  .ad-slot > ins.adsbygoogle {
+    display: inline-block !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .ad-slot iframe {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* ===== 카드 그리드 (메인 페이지) ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  
+  @media (max-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* ===== 카드 스타일 ===== */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.15s ease, transform 0.12s ease;
+    box-shadow: var(--shadow);
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  
+  .card h2 {
+    margin: 0 0 12px;
+    font-size: 18px;
+  }
+  
+  .card .head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .card .emoji {
+    font-size: 20px;
+  }
+  
+  .card h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  
+  /* ===== 태그 ===== */
+  .tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  
+  .tag {
+    font-size: 11px;
+    color: #3b4a6b;
+    background: var(--chip);
+    border: 1px solid var(--line);
+    padding: 4px 8px;
+    border-radius: 999px;
+  }
+  
+  .goto {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .goto a {
+    color: var(--acc);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  
+  .goto .new {
+    color: var(--ok);
+    font-size: 12px;
+  }
+  
+  /* ===== 메인 레이아웃 (서브 페이지) ===== */
+  main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  /* 만나이 페이지 메인 */
+  main.age-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .center {
+    width: 60%;
+    min-width: 320px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  @media (max-width: 860px) {
+    .center {
+      width: 100%;
+    }
+  }
+  
+  /* 만나이 페이지 카드 스타일 */
+  main.age-main .card {
+    width: 60%;
+  }
+  
+  @media (max-width: 860px) {
+    main.age-main .card {
+      width: 100%;
+    }
+  }
+  
+  /* ===== 폼 요소 ===== */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  
+  label {
+    font-weight: 700;
+  }
+  
+  .field input[type="text"] {
+    width: 100%;
+    background: #fff;
+    color: var(--ink);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 14px;
+    outline: none;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+  
+  .field input[type="text"]:focus {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  }
+  
+  /* ===== 날짜 입력 ===== */
+  .datebox {
+    position: relative;
+  }
+  
+  .datebox input {
+    padding-right: 64px;
+  }
+  
+  .calbtn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    line-height: 0;
+    font-size: 20px;
+  }
+  
+  .calbtn:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.45);
+    outline-offset: 2px;
+  }
+  
+  /* ===== 달력 위젯 ===== */
+  .picker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 10px;
+    display: none;
+    z-index: 9999;
+    max-height: 70vh;
+    overflow: auto;
+  }
+  
+  .picker.above {
+    top: auto;
+    bottom: calc(100% + 8px);
+  }
+  
+  .picker .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  
+  .picker .cal-title {
+    font-weight: 800;
+  }
+  
+  .picker select {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 8px;
+    background: #fff;
+  }
+  
+  .navbtn {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  
+  .picker table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .picker th,
+  .picker td {
+    width: 14.285%;
+    text-align: center;
+  }
+  
+  .picker th {
+    color: #64748b;
+    font-weight: 700;
+    padding: 8px 0;
+  }
+  
+  .picker td {
+    cursor: pointer;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 8px;
+  }
+  
+  .picker td:hover {
+    background: #eef2ff;
+  }
+  
+  .picker td.empty {
+    visibility: hidden;
+  }
+  
+  /* ===== 버튼 ===== */
+  .btn {
+    display: inline-grid;
+    place-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  
+  .btn:hover {
+    filter: brightness(1.05);
+  }
+  
+  .btn.small {
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  
+  .btn.primary {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    border-color: #2563eb;
+    color: #fff;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  
+  .actions #calcBtn {
+    flex: 2 1 0;
+    min-width: 180px;
+  }
+  
+  .actions #resetBtn {
+    flex: 1 1 0;
+    min-width: 120px;
+  }
+  
+  @media (max-width: 420px) {
+    .actions #calcBtn,
+    .actions #resetBtn {
+      flex: 1 1 100%;
+    }
+  }
+  
+  /* ===== 결과 영역 ===== */
+  .result-wrap {
+    display: none;
+  }
+  
+  .result {
+    display: grid;
+    gap: 12px;
+  }
+  
+  .flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .flex.space {
+    justify-content: space-between;
+  }
+  
+  .big {
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  
+  .muted {
+    color: #6b7280;
+  }
+  
+  /* D-Day 페이지 그리드 */
+  .grid.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  @media (max-width: 560px) {
+    .grid.kpi-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .kpi {
+    background: #fff;
+    border: 1px dashed var(--line);
+    border-radius: 16px;
+    padding: 14px;
+  }
+  
+  .kpi b {
+    display: block;
+    font-size: 20px;
+    margin-top: 4px;
+  }
+  
+  /* 만나이 페이지 결과 스타일 */
+  .headline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 800;
+    font-size: 20px;
+  }
+  
+  .kpi-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px dashed var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+  }
+  
+  /* ===== 기타 ===== */
+  .empty {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    color: #64748b;
+    background: #fff;
+  }
+  
+  .copyable {
+    user-select: all;
+  }
+  
+  /* ===== Footer ===== */
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 12px 0;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    background-color: transparent;
+    z-index: 1000;
+  }
