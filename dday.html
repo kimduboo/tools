@@ -86,10 +86,34 @@
           </div>
 
           <div class="grid kpi-grid" style="margin-top:8px">
-            <div class="kpi"><span class="muted">남은 날</span><b id="daysAbs">-일</b><div><button class="btn small" data-copy="daysAbs">복사</button></div></div>
-            <div class="kpi"><span class="muted">주</span><b id="weeks">-주</b><div><button class="btn small" data-copy="weeks">복사</button></div></div>
-            <div class="kpi"><span class="muted">개월(30일)</span><b id="months">-개월</b><div><button class="btn small" data-copy="months">복사</button></div></div>
-            <div class="kpi"><span class="muted">평일 수</span><b id="bizdays">-일</b><div><button class="btn small" data-copy="bizdays">복사</button></div></div>
+            <div class="kpi">
+                <span class="muted">남은 날</span>
+                <div class="kpi-content">
+                  <b id="daysAbs">-일</b>
+                  <button class="btn small" data-copy="daysAbs">복사</button>
+                </div>
+            </div>
+            <div class="kpi">
+                <span class="muted">주</span>
+                <div class="kpi-content">
+                    <b id="weeks">-주</b>
+                    <button class="btn small" data-copy="weeks">복사</button>
+                </div>
+            </div>
+            <div class="kpi">
+                <span class="muted">개월(30일)</span>
+                <div class="kpi-content">
+                    <b id="months">-개월</b>
+                    <button class="btn small" data-copy="months">복사</button>
+                </div>
+            </div>
+            <div class="kpi">
+                <span class="muted">평일 수</span>
+                <div class="kpi-content">
+                    <b id="bizdays">-일</b>
+                    <button class="btn small" data-copy="bizdays">복사</button>
+                </div>
+            </div>
           </div>
 
           <div class="muted" style="font-size:12px;margin-top:8px">※ 주/개월/평일은 근사치입니다. (당일=0, 지났으면 음수)</div>
@@ -117,54 +141,93 @@
     function getInputYMDOrToday(){ const v=dateInput.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number); return {y,m,d};} return zonedYMD(new Date()); }
 
     function buildCalendar(y,m0){
-      picker.innerHTML='';
-      const header=document.createElement('div'); header.className='cal-header';
+  picker.innerHTML='';
+  const header=document.createElement('div'); header.className='cal-header';
 
-      const yearSelect=document.createElement('select');
-      for(let yy=y-50; yy<=y+50; yy++){const o=document.createElement('option'); o.value=yy; o.textContent=yy; if(yy===y)o.selected=true; yearSelect.appendChild(o);}
+  const yearSelect=document.createElement('select');
+  for(let yy=y-50; yy<=y+50; yy++){const o=document.createElement('option'); o.value=yy; o.textContent=yy; if(yy===y)o.selected=true; yearSelect.appendChild(o);}
 
-      const monthSelect=document.createElement('select');
-      for(let mm=0; mm<12; mm++){const o=document.createElement('option'); o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true; monthSelect.appendChild(o);}
+  const monthSelect=document.createElement('select');
+  for(let mm=0; mm<12; mm++){const o=document.createElement('option'); o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true; monthSelect.appendChild(o);}
 
-      const left=document.createElement('div'); left.style.display='flex'; left.style.gap='6px';
-      left.appendChild(yearSelect); left.appendChild(monthSelect);
+  const left=document.createElement('div'); left.style.display='flex'; left.style.gap='6px';
+  left.appendChild(yearSelect); left.appendChild(monthSelect);
 
-      const mid=document.createElement('div'); mid.style.display='flex'; mid.style.alignItems='center'; mid.style.gap='8px'; mid.style.justifyContent='center'; mid.style.flex='1';
-      const title=document.createElement('div'); title.className='cal-title'; title.textContent=`${y}년 ${String(m0+1).padStart(2,'0')}월`;
-      const prevBtn=document.createElement('button'); prevBtn.type='button'; prevBtn.className='navbtn'; prevBtn.textContent='◀';
-      const nextBtn=document.createElement('button'); nextBtn.type='button'; nextBtn.className='navbtn'; nextBtn.textContent='▶';
-      mid.appendChild(prevBtn); mid.appendChild(title); mid.appendChild(nextBtn);
+  const mid=document.createElement('div'); mid.style.display='flex'; mid.style.alignItems='center'; mid.style.gap='8px'; mid.style.justifyContent='center'; mid.style.flex='1';
+  const title=document.createElement('div'); title.className='cal-title'; title.textContent=`${y}년 ${String(m0+1).padStart(2,'0')}월`;
+  const prevBtn=document.createElement('button'); prevBtn.type='button'; prevBtn.className='navbtn'; prevBtn.textContent='◀';
+  const nextBtn=document.createElement('button'); nextBtn.type='button'; nextBtn.className='navbtn'; nextBtn.textContent='▶';
+  mid.appendChild(prevBtn); mid.appendChild(title); mid.appendChild(nextBtn);
 
-      header.appendChild(left); header.appendChild(mid);
-      picker.appendChild(header);
+  header.appendChild(left); header.appendChild(mid);
+  picker.appendChild(header);
 
-      const table=document.createElement('table');
-      const thead=document.createElement('thead'); const tr=document.createElement('tr');
-      ['일','월','화','수','목','금','토'].forEach(d=>{const th=document.createElement('th'); th.textContent=d; tr.appendChild(th);});
-      thead.appendChild(tr); table.appendChild(thead);
+  const table=document.createElement('table');
+  const thead=document.createElement('thead'); const tr=document.createElement('tr');
+  ['일','월','화','수','목','금','토'].forEach(d=>{const th=document.createElement('th'); th.textContent=d; tr.appendChild(th);});
+  thead.appendChild(tr); table.appendChild(thead);
 
-      const first=new Date(y,m0,1).getDay();
-      const last=new Date(y,m0+1,0).getDate();
-      const tbody=document.createElement('tbody'); let row=document.createElement('tr');
+  const first=new Date(y,m0,1).getDay();
+  const last=new Date(y,m0+1,0).getDate();
+  const tbody=document.createElement('tbody'); 
+  
+  let row=document.createElement('tr');
+  let cellCount = 0;
 
-      for(let i=0;i<first;i++){ const td=document.createElement('td'); td.className='empty'; row.appendChild(td); }
+  // 첫 주의 빈 셀들 채우기
+  for(let i=0;i<first;i++){ 
+    const td=document.createElement('td'); 
+    td.className='empty'; 
+    row.appendChild(td); 
+    cellCount++;
+  }
 
-      for(let d=1; d<=last; d++){
-        const td=document.createElement('td'); td.textContent=d;
-        td.addEventListener('click',(ev)=>{ ev.stopPropagation(); const mm=String(m0+1).padStart(2,'0'); const dd=String(d).padStart(2,'0'); dateInput.value=`${y}-${mm}-${dd}`; closePicker(); });
-        row.appendChild(td);
-        if((first+d)%7===0){tbody.appendChild(row); row=document.createElement('tr');}
-      }
-      while(row.children.length && row.children.length<7){ const td=document.createElement('td'); td.className='empty'; row.appendChild(td); }
-      tbody.appendChild(row); table.appendChild(tbody); picker.appendChild(table);
-
-      const rerender=()=>buildCalendar(parseInt(yearSelect.value,10), parseInt(monthSelect.value,10));
-      yearSelect.addEventListener('change',rerender); monthSelect.addEventListener('change',rerender);
-      prevBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10); mm--; if(mm<0){mm=11; yy--;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm); });
-      nextBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10); mm++; if(mm>11){mm=0; yy++;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm); });
-
-      picker.addEventListener('pointerdown',(e)=>e.stopPropagation());
+  // 실제 날짜들 채우기
+  for(let d=1; d<=last; d++){
+    const td=document.createElement('td'); 
+    td.textContent=d;
+    td.addEventListener('click',(ev)=>{ 
+      ev.stopPropagation(); 
+      const mm=String(m0+1).padStart(2,'0'); 
+      const dd=String(d).padStart(2,'0'); 
+      dobInput ? (dobInput.value=`${y}-${mm}-${dd}`) : (dateInput.value=`${y}-${mm}-${dd}`); 
+      closePicker(); 
+    });
+    row.appendChild(td);
+    cellCount++;
+    
+    // 7개가 차면 새 행 시작
+    if(cellCount === 7){
+      tbody.appendChild(row); 
+      row=document.createElement('tr');
+      cellCount = 0;
     }
+  }
+  
+  // 마지막 행의 빈 셀들 채우기
+  while(cellCount > 0 && cellCount < 7){ 
+    const td=document.createElement('td'); 
+    td.className='empty'; 
+    row.appendChild(td); 
+    cellCount++;
+  }
+  
+  // 마지막 행이 비어있지 않으면 추가
+  if(row.children.length > 0) {
+    tbody.appendChild(row); 
+  }
+  
+  table.appendChild(tbody); 
+  picker.appendChild(table);
+
+  const rerender=()=>buildCalendar(parseInt(yearSelect.value,10), parseInt(monthSelect.value,10));
+  yearSelect.addEventListener('change',rerender); 
+  monthSelect.addEventListener('change',rerender);
+  prevBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10); mm--; if(mm<0){mm=11; yy--;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm); });
+  nextBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10); mm++; if(mm>11){mm=0; yy++;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm); });
+
+  picker.addEventListener('pointerdown',(e)=>e.stopPropagation());
+}
 
     function openPicker(){
       const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1);

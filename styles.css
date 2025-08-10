@@ -90,6 +90,37 @@
     font-size: 15px;
   }
   
+/* 로고 hover 효과 */
+a.brand {
+    transition: transform 0.2s ease;
+  }
+  
+  a.brand:hover {
+    transform: scale(1.05);
+  }
+  
+  a.brand .logo {
+    transition: all 0.3s ease;
+  }
+  
+  a.brand:hover .logo {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.4);
+    transform: rotate(5deg);
+  }
+  
+  /* 포커스 상태도 추가 (접근성) */
+  a.brand:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.5);
+    outline-offset: 4px;
+    border-radius: 20px;
+  }
+  
+  a.brand:focus-visible .logo {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.4);
+  }
+
   /* 타이틀 */
   .title {
     justify-self: center;
@@ -220,7 +251,8 @@
     box-shadow: var(--shadow);
   }
   
-  .card:hover {
+/* 메인 페이지(index.html)의 그리드 카드에만 hover 효과 적용 */
+.grid .card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow);
   }
@@ -539,16 +571,32 @@
     flex-wrap: wrap;
   }
   
+/* D-Day 메인 결과 가운데 정렬 */
+.flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center; /* 가운데 정렬 추가 */
+  }
+  
   .flex.space {
-    justify-content: space-between;
+    justify-content: center; /* space-between에서 center로 변경 */
+    gap: 12px; /* 복사 버튼과의 간격 */
   }
   
   .big {
     font-size: clamp(42px, 8vw, 72px);
     font-weight: 900;
     letter-spacing: -1px;
+    margin: 0; /* 기본 여백 제거 */
   }
   
+  /* 복사 버튼 스타일 조정 */
+  #copyHeadline,
+  #copySubline {
+    margin-left: 8px; /* 텍스트와 버튼 사이 간격 최소화 */
+  }
   .muted {
     color: #6b7280;
   }
@@ -566,17 +614,30 @@
     }
   }
   
-  .kpi {
+/* D-Day 페이지 KPI를 한 줄 스타일로 변경 */
+.kpi {
     background: #fff;
     border: 1px dashed var(--line);
     border-radius: 16px;
     padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .kpi .kpi-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   
   .kpi b {
-    display: block;
     font-size: 20px;
-    margin-top: 4px;
+    margin: 0;
+  }
+  
+  .kpi .btn.small {
+    margin: 0;
   }
   
   /* 만나이 페이지 결과 스타일 */
