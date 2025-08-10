@@ -137,8 +137,9 @@
     dateInput.addEventListener('input',(e)=>{ e.target.value=formatYMD(e.target.value); syncCalendarFromInput(); });
     dateInput.addEventListener('blur',(e)=>{ e.target.value=formatYMD(e.target.value); });
 
+        // ===== 달력 위젯 =====
     const picker=document.getElementById('picker');
-    function getInputYMDOrToday(){ const v=dateInput.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number); return {y,m,d};} return zonedYMD(new Date()); }
+    function getInputYMDOrToday(){ const v=dobInput.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number); return {y,m,d};} return zonedYMD(new Date()); }
 
     function buildCalendar(y,m0){
   picker.innerHTML='';
@@ -241,6 +242,9 @@
     document.addEventListener('pointerdown',(e)=>{ const box=document.querySelector('.datebox'); if(!box.contains(e.target)) closePicker(); });
     function syncCalendarFromInput(){ if(picker.style.display==='block'){ const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1); } }
 
+
+    
+    
     function fmtSigned(n,d=1){
       const v=Number(n.toFixed(d));
       return (Object.is(v,-0)?0:v).toFixed(d);
