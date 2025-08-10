@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>만나이(생활연령) 계산기 | 툴서랍</title>
   <meta name="description" content="생년월일을 입력하면 KST 기준으로 만나이, 다음 생일까지 D-Day, 살아온 날, 개월수 표기를 제공합니다." />
-  <!-- (선택) AdSense 전역 스니펫 -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783" crossorigin="anonymous"></script>
 
-<style>
+  <style>
     :root{
       --bg:#f7f9fd; --panel:#ffffff; --line:#e6eaf2; --ink:#1f2a37; --muted:#6b7280; --acc:#2563eb;
       --shadow:0 10px 22px rgba(2,8,23,.08);
@@ -27,17 +26,20 @@
     }
 
     .wrap{max-width:960px;margin:0 auto;padding:24px;overflow:visible}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 18px}
-    .brand{display:flex;align-items:center;gap:14px}
+
+    /* 헤더: 로고(좌=홈 링크) | 타이틀(가운데) | 오른쪽은 빈 공간으로 균형 */
+    header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:6px 0 18px}
+    a.brand-left{display:flex;align-items:center;gap:10px;justify-self:start;text-decoration:none;outline-offset:2px}
     .logo{width:44px;height:44px;display:grid;place-items:center;background:linear-gradient(135deg,#60a5fa,#2563eb);border-radius:14px;box-shadow:0 6px 18px rgba(37,99,235,.25);font-weight:900;color:#fff}
+    .title{justify-self:center;text-align:center}
     .title h1{margin:0;font-size:clamp(20px,3vw,28px)}
     .title p{margin:4px 0 0;color:var(--muted);font-size:14px}
-    .back{color:var(--acc);text-decoration:none}
+    .spacer{justify-self:end} /* 오른쪽 균형용 빈 칸 */
 
-    main{display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px}
-    @media (max-width:860px){main{grid-template-columns:1fr}}
-
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:20px;overflow:visible}
+    /* 입력은 가운데 60% */
+    main{display:flex;flex-direction:column;align-items:center;gap:24px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:20px;overflow:visible;width:60%}
+    @media (max-width: 860px){ .card{width:100%} }
     .card h2{margin:0 0 12px;font-size:18px}
     .field{display:flex;flex-direction:column;gap:10px;margin:12px 0}
     label{font-weight:700}
@@ -65,8 +67,6 @@
     .picker .cal-title{font-weight:800}
     .picker select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}
     .navbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
-
-    /* 달력 표 정렬 */
     .picker table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
     .picker th,.picker td{width:14.285%;text-align:center}
     .picker th{color:#64748b;font-weight:700;padding:8px 0}
@@ -96,18 +96,19 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">TS</div>
-        <div class="title">
-          <h1>만나이(생활연령) 계산기</h1>
-          <p>결과 표기 예: 만 4세/49개월/4세 1개월/4;1</p>
-        </div>
+      <!-- 로고를 홈 링크로 -->
+      <a href="https://tools.joyful101.com/" class="brand-left" aria-label="툴서랍 홈">
+        <div class="logo" aria-hidden="true">Tool</div>
+      </a>
+      <div class="title">
+        <h1>만나이(생활연령) 계산기</h1>
+        <p>결과 예: 만4세/49개월/4세1개월/4;1</p>
       </div>
-      <!-- 홈 링크: 절대경로 -->
-      <nav><a href="https://tools.joyful101.com/" class="back">🏠 툴서랍 홈</a></nav>
+      <div class="spacer" aria-hidden="true"></div>
     </header>
 
     <main>
+      <!-- 입력 카드 -->
       <section class="card" aria-labelledby="calcTitle">
         <h2 id="calcTitle">입력</h2>
 
@@ -126,20 +127,30 @@
           <button id="resetBtn" class="btn">초기화</button>
         </div>
 
-        <div id="adTop"></div>
+        <div id="adTop"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+          crossorigin="anonymous"></script>
+     <!-- 중간 수평 디스플레이 -->
+     <ins class="adsbygoogle"
+          style="display:block"
+          data-ad-client="ca-pub-6022794906780783"
+          data-ad-slot="6135885040"
+          data-ad-format="auto"
+          data-full-width-responsive="true"></ins>
+     <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+     </script></div>
       </section>
 
+      <!-- 결과 카드 -->
       <section class="card result-wrap" id="resultWrap" aria-labelledby="resultTitle">
         <h2 id="resultTitle">결과</h2>
         <div class="result">
-          <div class="muted" id="nowKst">기준 시각: -</div>
+          <div class="muted" id="nowKst">현재 시각: -</div>
 
           <div class="headline">
             <span id="ageMain" class="copyable">만 - 세</span>
             <button class="btn small" id="copyAge">복사</button>
           </div>
-
-          <div class="muted" id="ageDetail">생년월일을 입력하고 계산하기를 눌러주세요.</div>
 
           <div class="kpi-line">
             <span class="muted">다음 생일까지</span>
@@ -204,7 +215,7 @@
     dobInput.addEventListener('input',(e)=>{ e.target.value=formatYMD(e.target.value); syncCalendarFromInput(); });
     dobInput.addEventListener('blur',(e)=>{ e.target.value=formatYMD(e.target.value); });
 
-    // ===== 달력 위젯 (D-Day와 동일) =====
+    // ===== 달력 위젯 =====
     const picker=document.getElementById('picker');
     function getInputYMDOrToday(){ const v=dobInput.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number); return {y,m,d};} return zonedYMD(new Date()); }
 
@@ -213,10 +224,10 @@
       const header=document.createElement('div'); header.className='cal-header';
 
       const yearSelect=document.createElement('select');
-      for(let yy=y-60; yy<=y+20; yy++){const o=document.createElement('option'); o.value=yy; o.textContent=yy; if(yy===y)o.selected=true; yearSelect.appendChild(o);}
+      for(let yy=y-60; yy<=y+20; yy++){const o=document.createElement('option'); o.value=yy; o.textContent=yy; if(yy===y)o.selected=true; yearSelect.appendChild(o);} 
 
       const monthSelect=document.createElement('select');
-      for(let mm=0; mm<12; mm++){const o=document.createElement('option'); o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true; monthSelect.appendChild(o);}
+      for(let mm=0; mm<12; mm++){const o=document.createElement('option'); o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true; monthSelect.appendChild(o);} 
 
       const left=document.createElement('div'); left.style.display='flex'; left.style.gap='6px';
       left.appendChild(yearSelect); left.appendChild(monthSelect);
@@ -269,7 +280,7 @@
     document.addEventListener('pointerdown',(e)=>{ const box=document.querySelector('.datebox'); if(!box.contains(e.target)) closePicker(); });
     function syncCalendarFromInput(){ if(picker.style.display==='block'){ const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1); } }
 
-    // ===== 만나이 계산 (수정됨) =====
+    // ===== 만나이 계산 =====
     function calcAge(dobStr){
       if(!/^\d{4}-\d{2}-\d{2}$/.test(dobStr)) return null;
 
@@ -279,26 +290,15 @@
       const birthUTC = new Date(Date.UTC(by,bm-1,bd));
       const todayUTC = new Date(Date.UTC(cy,cm-1,cd));
 
-      // 아직 태어나지 않은 경우: 모두 0 처리, D-Day는 출생일까지
       if (todayUTC < birthUTC){
         const daysToBirth = Math.ceil((birthUTC - todayUTC)/86400000);
-        return {
-          years: 0,
-          months: 0,
-          yPart: 0,
-          mPart: 0,
-          daysToNext: daysToBirth, // 출생일까지
-          daysLived: 0
-        };
+        return { years:0, months:0, yPart:0, mPart:0, daysToNext:daysToBirth, daysLived:0 };
       }
 
-      // 이미 태어난 경우
-      // 만나이(연)
       let years = cy - by;
       if (cm < bm || (cm === bm && cd < bd)) years -= 1;
       if (years < 0) years = 0;
 
-      // 총 개월(생일 기준, 해당 달 생일 전이면 -1)
       let months = (cy - by) * 12 + (cm - bm);
       if (cd < bd) months -= 1;
       if (months < 0) months = 0;
@@ -306,13 +306,11 @@
       const yPart = Math.floor(months / 12);
       const mPart = months % 12;
 
-      // 다음 생일까지
       let nextY = cy;
       if (cm > bm || (cm === bm && cd >= bd)) nextY = cy + 1;
       const nextBirthdayUTC = new Date(Date.UTC(nextY, bm-1, bd));
       const daysToNext = Math.ceil((nextBirthdayUTC - todayUTC)/86400000);
 
-      // 살아온 날(음수 방지)
       const daysLived = Math.max(0, Math.floor((todayUTC - birthUTC)/86400000));
 
       return { years, months, yPart, mPart, daysToNext, daysLived };
@@ -325,7 +323,6 @@
       const {years,months,yPart,mPart,daysToNext,daysLived}=r;
 
       document.getElementById('ageMain').textContent=`만 ${years}세`;
-      document.getElementById('ageDetail').textContent=`${dob} 기준 · 현재 시각 ${fmtNow.format(new Date())} (KST)`;
       document.getElementById('dday').textContent=`${daysToNext}일`;
       document.getElementById('lived').textContent=`${daysLived.toLocaleString('ko-KR')}일`;
       document.getElementById('ageMonths').textContent=`${months}개월`;
@@ -333,7 +330,7 @@
       document.getElementById('ageSemicolon').textContent=`${yPart};${mPart}`;
 
       document.getElementById('resultWrap').style.display='block';
-      document.getElementById('nowKst').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
+      document.getElementById('nowKst').textContent = `현재 시각: ${fmtNow.format(new Date())} (KST)`;
     }
 
     function copyById(id){
