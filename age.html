@@ -35,6 +35,26 @@
     .title h1{margin:0;font-size:clamp(20px,3vw,28px)}
     .title p{margin:4px 0 0;color:var(--muted);font-size:14px}
     .spacer{justify-self:end} /* 오른쪽 균형용 빈 칸 */
+    /* 광고는 전용 래퍼로 감싸서 폭 고정 + 클리핑 */
+.ad-slot{
+  margin:12px 0;
+  padding:8px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;            /* 밖으로 나가는 요소 숨김 */
+}
+
+/* AdSense가 컨테이너 폭을 따르도록 */
+.ad-slot > ins.adsbygoogle{
+  display:block !important;
+  width:100% !important;      /* 반드시 부모 너비를 사용 */
+}
+
+/* 일부 기기에서 iframe이 더 커질 때 대비 */
+.ad-slot iframe{
+  max-width:100% !important;
+}
 
     /* 입력은 가운데 60% */
     main{display:flex;flex-direction:column;align-items:center;gap:24px}
@@ -127,8 +147,9 @@
           <button id="resetBtn" class="btn">초기화</button>
         </div>
 <p></p>
-<center>
-        <div id="adTop"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
+    <center>
+        <div class=ad-slot id="adTop">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022794906780783"
           crossorigin="anonymous"></script>
      <!-- 중간 수평 디스플레이 -->
      <ins class="adsbygoogle"
@@ -139,7 +160,8 @@
           data-full-width-responsive="true"></ins>
      <script>
           (adsbygoogle = window.adsbygoogle || []).push({});
-     </script></div>
+     </script>
+        </div>
      </center>
       </section>
 
