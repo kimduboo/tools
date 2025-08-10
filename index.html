@@ -31,24 +31,48 @@
 
     .wrap{max-width:1100px;margin:0 auto;padding:24px}
 
-    /* 헤더: 좌(로고+브랜드) | 중앙(태그라인) | 우(액션) */
-    header{
-      display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; padding:6px 0 18px;
-    }
-    .brand{
-      justify-self:start; display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;
-    }
-    .logo{
-      width:48px;height:48px;display:grid;place-items:center;
-      background:linear-gradient(135deg,#60a5fa,#2563eb);border-radius:14px;
-      box-shadow:0 6px 20px rgba(37,99,235,.25);font-weight:900;color:#fff
-    }
-    .brand-name{font-weight:800;font-size:20px;}
-    .title{
-      justify-self:center; text-align:center;
-    }
-    .title p{margin:0;color:var(--muted);font-size:15px}
-    nav.actions{justify-self:end; display:flex; align-items:center; gap:8px}
+/* ── Header: 로고(좌=홈 링크) | 타이틀(가운데) | 액션(우) ── */
+header.app-header{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:14px;
+  padding:16px 0 20px;
+}
+/* 좌측 로고 배지 */
+a.brand{justify-self:start; text-decoration:none; color:inherit; display:flex; align-items:center;}
+.logo{
+  width:56px; height:56px; border-radius:16px;
+  display:grid; place-items:center;
+  background:linear-gradient(135deg,#60a5fa,#2563eb);
+  box-shadow:0 10px 22px rgba(37,99,235,.25);
+}
+.logo .logo-text{
+  color:#fff; font-weight:900; text-align:center;
+  line-height:1.05; letter-spacing:-.2px; /* 글자 간격 살짝 조정 */
+  font-size:15px;  /* 필요하면 14~16px 사이로 */
+}
+/* 가운데 슬로건만 */
+.title{justify-self:center;text-align:center}
+    .title h1{margin:0;font-size:clamp(20px,3vw,28px)}
+    .title p{margin:4px 0 0;color:var(--muted);font-size:14px}
+    .spacer{justify-self:end}
+
+.title{justify-self:center; text-align:center}
+.title p{
+  margin:0;
+  color:#374151; /* 전체 어두운 남회색 */
+  font-weight:500; /* 기본 두께 */
+  font-size:clamp(16px,2.2vw,18px);
+}
+.title p b{
+  color:#374151; /* 동일한 남회색 */
+  font-weight:1000; /* 강조 두께만 더 줌 */
+}
+
+
+/* 우측 액션(공유 등) */
+nav.actions{justify-self:end; display:flex; align-items:center; gap:8px}
     .theme-toggle{display:none}
 
     /* 검색: 아이콘을 가상요소로 그려 세로정렬 정확히 */
@@ -77,15 +101,16 @@
   overflow: hidden;        /* 광고가 넘치면 숨김 */
 }
 
-/* AdSense가 컨테이너 폭을 따르도록 */
+/* 광고 크기를 부모에 맞게 축소 */
 .ad-slot > ins.adsbygoogle {
-  display: block !important;
-  width: 100% !important;
+  display:inline-block !important;
+  max-width:100% !important;
+  height:auto !important;
 }
 
-/* iframe 크기 제어 */
 .ad-slot iframe {
-  max-width: 100% !important;
+  max-width:100% !important;
+  height:auto !important;
 }
 
 
@@ -118,19 +143,26 @@
 <body>
   <div class="wrap">
     <!-- 헤더 -->
-    <header>
-      <a class="brand" href="/" aria-label="툴서랍 홈">
-        <div class="logo" aria-hidden="true">Tool</div>
-        <span class="brand-name">툴서랍</span>
+    <header class="app-header">
+      <!-- 로고: 홈 링크 -->
+      <a class="brand" href="https://tools.joyful101.com/" aria-label="툴서랍 홈">
+        <div class="logo" aria-hidden="true">
+          <span class="logo-text">Tool<br>Box</span>
+        </div>
       </a>
+    
+      <!-- 가운데 슬로건 -->
       <div class="title">
         <p>바로 쓰는 <b>생활 계산기</b></p>
       </div>
+    
+      <!-- 우측 액션 -->
       <nav class="actions">
-        <button id="themeToggle" class="theme-toggle" aria-label="테마 전환">🌞 라이트</button>
-        <a href="#" id="share" style="color:var(--acc);text-decoration:none" aria-label="링크 복사">🔗</a>
+        <a href="#" id="share" aria-label="링크 복사" style="color:var(--acc); text-decoration:none">🔗</a>
       </nav>
     </header>
+    
+    
 
     <!-- 검색 -->
     <div class="search">
@@ -177,7 +209,7 @@
     // 데이터
     const tools=[
       {id:'age-now',name:'만나이 계산기',emoji:'🎂',desc:'세/개월/4;1',href:'/age.html',tags:['나이','개월수','연령','생활']},
-      {id:'dday',name:'D-Day 계산기',emoji:'📅',desc:'주/개월/평일(근사치)',href:'/dday.html',tags:['날짜','카운트다운','디데이']},
+      {id:'dday',name:'D-Day 계산기',emoji:'📅',desc:'남은 날(절대값)/주,개월,평일(근사치)',href:'/dday.html',tags:['날짜','카운트다운','디데이']},
       // … 필요 시 추가
     ];
 
