@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>색상 코드 변환기 | Tool Box</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='80'>🎨</text></svg>">
+<style>
+:root{
+  --bg:#f7f9fd; --panel:#fff; --line:#e6eaf2; --ink:#1f2a37; --muted:#6b7280; --acc:#2563eb;
+  --shadow:0 10px 22px rgba(2,8,23,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fafafa;color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif}
+body::before{content:"";position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, transparent 60%),linear-gradient(#fafafa,#eaeaea)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 0 18px}
+.logo{justify-self:start;display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}
+.logo-badge{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#60a5fa,#2563eb);box-shadow:0 6px 18px rgba(37,99,235,.25);display:grid;place-items:center;color:#fff;font-weight:900}
+.title{justify-self:center;text-align:center}
+.title h1{margin:0;font-size:clamp(20px,3vw,28px)}
+.title p{margin:4px 0 0;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.picker{display:grid;grid-template-columns:auto 44px;gap:12px;align-items:center}
+.sv-wrap{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+#sv{display:block;width:100%;height:100%}
+.knob{position:absolute;width:18px;height:18px;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.25);transform:translate(-50%,-50%);pointer-events:none}
+.hue-col{height:100%;border-radius:12px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center}
+#h{writing-mode:bt-lr;-webkit-appearance:none;appearance:none;width:100%;height:100%;background:linear-gradient(to top, red, #ff0, #0f0, #0ff, #00f, #f0f, red);border:none}
+#h::-webkit-slider-thumb{appearance:none;width:20px;height:6px;background:#fff;border-radius:3px;box-shadow:0 0 0 2px rgba(0,0,0,.25)}
+.rows{display:grid;gap:10px;margin-top:14px}
+.row{display:grid;grid-template-columns:120px 1fr 60px;gap:10px;align-items:center}
+.row label{color:var(--muted)}
+.row input{width:100%;padding:12px 12px;border:2px solid var(--line);border-radius:12px;font:inherit}
+.row input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+.btn{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}
+.btn.copy{font-size:13px}
+.preview{display:flex;gap:12px;align-items:center;margin-top:12px}
+.swatch{width:42px;height:42px;border-radius:10px;border:1px solid var(--line)}
+small{color:var(--muted)}
+.helper{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.helper .chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#f3f6ff;color:#3b4a6b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="/">
+      <div class="logo-badge">🎨</div><div>Tool Box</div>
+    </a>
+    <div class="title">
+      <h1>색상 코드 변환기</h1>
+      <p>모바일 친화 픽커 + HEX / RGB / HSL / CMYK</p>
+    </div>
+    <div></div>
+  </header>
+
+  <section class="card">
+    <div class="grid">
+      <!-- 좌: 색상 픽커 -->
+      <div>
+        <div class="picker">
+          <div class="sv-wrap">
+            <canvas id="sv"></canvas>
+            <div id="knob" class="knob"></div>
+          </div>
+          <div class="hue-col">
+            <input id="h" type="range" min="0" max="360" value="200" step="1" aria-label="Hue">
+          </div>
+        </div>
+        <div class="preview">
+          <div id="swatch" class="swatch"></div>
+          <div>
+            <div id="hexBig" style="font-weight:800"></div>
+            <small id="name"> </small>
+          </div>
+        </div>
+        <div class="helper">
+          <span class="chip">드래그하여 미세조정(터치 지원)</span>
+          <span class="chip">입력칸에 직접 값 입력해도 동기화</span>
+        </div>
+      </div>
+
+      <!-- 우: 코드 입력/복사 -->
+      <div class="rows">
+        <div class="row">
+          <label for="hex">HEX</label>
+          <input id="hex" value="#563b7f" spellcheck="false">
+          <button class="btn copy" data-copy="hex">복사</button>
+        </div>
+        <div class="row">
+          <label for="rgb">RGB</label>
+          <input id="rgb" value="86, 59, 127" spellcheck="false">
+          <button class="btn copy" data-copy="rgb">복사</button>
+        </div>
+        <div class="row">
+          <label for="hsl">HSL</label>
+          <input id="hsl" value="264, 37%, 36%" spellcheck="false">
+          <button class="btn copy" data-copy="hsl">복사</button>
+        </div>
+        <div class="row">
+          <label for="cmyk">CMYK</label>
+          <input id="cmyk" value="32, 54, 0, 50" spellcheck="false">
+          <button class="btn copy" data-copy="cmyk">복사</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===== math utils ===== */
+const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+const hex = (n)=>('#'+[n.r,n.g,n.b].map(x=>x.toString(16).padStart(2,'0')).join('')).toUpperCase();
+const hexToRgb = (h)=>{ h=h.replace('#',''); if(h.length===3) h=[...h].map(x=>x+x).join(''); const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; };
+const rgbToHsl=({r,g,b})=>{
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){ h=s=0; }
+  else{
+    const d=max-min;
+    s=l>0.5? d/(2-max-min): d/(max+min);
+    switch(max){
+      case r: h=(g-b)/d + (g<b?6:0); break;
+      case g: h=(b-r)/d + 2; break;
+      case b: h=(r-g)/d + 4; break;
+    } h/=6;
+  }
+  return {h:Math.round(h*360), s:Math.round(s*100), l:Math.round(l*100)};
+};
+const hslToRgb=({h,s,l})=>{
+  h/=360; s/=100; l/=100;
+  if(s===0){ const v=Math.round(l*255); return {r:v,g:v,b:v}; }
+  const hue2rgb=(p,q,t)=>{ if(t<0) t+=1; if(t>1) t-=1; if(t<1/6) return p+(q-p)*6*t; if(t<1/2) return q; if(t<2/3) return p+(q-p)*(2/3-t)*6; return p; };
+  const q=l<.5 ? l*(1+s): l+s-l*s, p=2*l-q;
+  const r=hue2rgb(p,q,h+1/3), g=hue2rgb(p,q,h), b=hue2rgb(p,q,h-1/3);
+  return {r:Math.round(r*255), g:Math.round(g*255), b:Math.round(b*255)};
+};
+const rgbToCmyk=({r,g,b})=>{
+  const R=r/255,G=g/255,B=b/255;
+  const K=1-Math.max(R,G,B);
+  if(K===1) return {c:0,m:0,y:0,k:100};
+  const C=(1-R-K)/(1-K), M=(1-G-K)/(1-K), Y=(1-B-K)/(1-K);
+  return {c:Math.round(C*100), m:Math.round(M*100), y:Math.round(Y*100), k:Math.round(K*100)};
+};
+const hsvToRgb=({h,s,v})=>{
+  s/=100; v/=100; const c=v*s, x=c*(1-Math.abs((h/60)%2-1)), m=v-c;
+  let r=0,g=0,b=0;
+  if(0<=h&&h<60){r=c;g=x;} else if(60<=h&&h<120){r=x;g=c;}
+  else if(120<=h&&h<180){g=c;b=x;} else if(180<=h&&h<240){g=x;b=c;}
+  else if(240<=h&&h<300){r=x;b=c;} else {r=c;b=x;}
+  return {r:Math.round((r+m)*255), g:Math.round((g+m)*255), b:Math.round((b+m)*255)};
+};
+const rgbToHsv=({r,g,b})=>{
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+  let h=0;
+  if(d!==0){
+    if(max===r) h=((g-b)/d)%6;
+    else if(max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h=Math.round(h*60); if(h<0) h+=360;
+  }
+  const s=max===0?0:d/max, v=max;
+  return {h, s:Math.round(s*100), v:Math.round(v*100)};
+};
+/* ===== DOM ===== */
+const sv = document.getElementById('sv');
+const hSlider = document.getElementById('h');
+const knob = document.getElementById('knob');
+const hexInp = document.getElementById('hex');
+const rgbInp = document.getElementById('rgb');
+const hslInp = document.getElementById('hsl');
+const cmykInp= document.getElementById('cmyk');
+const swatch = document.getElementById('swatch');
+const hexBig = document.getElementById('hexBig');
+
+let H=200, S=60, V=60; // HSV state
+
+const resizeCanvas=()=>{
+  const rect=sv.getBoundingClientRect();
+  sv.width=Math.round(rect.width);
+  sv.height=Math.round(rect.height);
+  drawSV();
+  placeKnob();
+};
+const drawSV=()=>{
+  const ctx=sv.getContext('2d');
+  const w=sv.width, h=sv.height;
+  // base fill with hue
+  const {r,g,b}=hslToRgb({h:H,s:100,l:50});
+  ctx.fillStyle=`rgb(${r},${g},${b})`;
+  ctx.fillRect(0,0,w,h);
+  // white gradient (left->right)
+  const gradWhite=ctx.createLinearGradient(0,0,w,0);
+  gradWhite.addColorStop(0,'#fff'); gradWhite.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=gradWhite; ctx.fillRect(0,0,w,h);
+  // black gradient (top->bottom)
+  const gradBlack=ctx.createLinearGradient(0,0,0,h);
+  gradBlack.addColorStop(0,'rgba(0,0,0,0)'); gradBlack.addColorStop(1,'#000');
+  ctx.fillStyle=gradBlack; ctx.fillRect(0,0,w,h);
+};
+const placeKnob=()=>{
+  const x = (S/100)*sv.width;
+  const y = sv.height - (V/100)*sv.height;
+  knob.style.left = x+'px';
+  knob.style.top  = y+'px';
+};
+
+const updateAllFromHSV=()=>{
+  const rgb = hsvToRgb({h:H,s:S,v:V});
+  const hsl = rgbToHsl(rgb);
+  const cmyk = rgbToCmyk(rgb);
+  const hx = hex(rgb);
+
+  hexInp.value = hx;
+  rgbInp.value = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+  hslInp.value = `${hsl.h}, ${hsl.s}%, ${hsl.l}%`;
+  cmykInp.value= `${cmyk.c}, ${cmyk.m}, ${cmyk.y}, ${cmyk.k}`;
+
+  swatch.style.background = hx;
+  hexBig.textContent = hx;
+
+  drawSV();
+  placeKnob();
+};
+
+const pointer = (el, onMove)=>{
+  let down=false;
+  const start=e=>{ down=true; move(e); e.preventDefault(); };
+  const end=()=> down=false;
+  const move=e=>{
+    if(!down) return;
+    const t=e.touches? e.touches[0]: e;
+    const rect=sv.getBoundingClientRect();
+    const x=clamp(t.clientX-rect.left,0,rect.width);
+    const y=clamp(t.clientY-rect.top ,0,rect.height);
+    S = Math.round((x/rect.width)*100);
+    V = Math.round((1 - y/rect.height)*100);
+    updateAllFromHSV();
+  };
+  el.addEventListener('mousedown',start); document.addEventListener('mousemove',move); document.addEventListener('mouseup',end);
+  el.addEventListener('touchstart',start,{passive:false}); document.addEventListener('touchmove',move,{passive:false}); document.addEventListener('touchend',end);
+};
+
+window.addEventListener('resize', resizeCanvas);
+pointer(sv);
+
+hSlider.addEventListener('input', e=>{
+  H=parseInt(e.target.value,10);
+  updateAllFromHSV();
+});
+
+hexInp.addEventListener('input', e=>{
+  const v=e.target.value.trim();
+  const m=v.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if(!m) return;
+  const rgb=hexToRgb(v);
+  const hsv=rgbToHsv(rgb);
+  H=hsv.h; S=hsv.s; V=hsv.v; hSlider.value=H;
+  updateAllFromHSV();
+});
+rgbInp.addEventListener('input', e=>{
+  const m=e.target.value.match(/^\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*$/);
+  if(!m) return;
+  const rgb={r:clamp(+m[1],0,255), g:clamp(+m[2],0,255), b:clamp(+m[3],0,255)};
+  const hsv=rgbToHsv(rgb); H=hsv.h; S=hsv.s; V=hsv.v; hSlider.value=H; updateAllFromHSV();
+});
+hslInp.addEventListener('input', e=>{
+  const m=e.target.value.match(/^\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*$/);
+  if(!m) return;
+  const rgb=hslToRgb({h:clamp(+m[1],0,360), s:clamp(+m[2],0,100), l:clamp(+m[3],0,100)});
+  const hsv=rgbToHsv(rgb); H=hsv.h; S=hsv.s; V=hsv.v; hSlider.value=H; updateAllFromHSV();
+});
+cmykInp.addEventListener('input', e=>{
+  const m=e.target.value.match(/^\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*$/);
+  if(!m) return;
+  let [c,mn,y,k]=[+m[1],+m[2],+m[3],+m[4]].map(v=>clamp(v,0,100)/100);
+  // CMYK -> RGB
+  const r=Math.round(255*(1-c)*(1-k));
+  const g=Math.round(255*(1-mn)*(1-k));
+  const b=Math.round(255*(1-y)*(1-k));
+  const hsv=rgbToHsv({r,g,b}); H=hsv.h; S=hsv.s; V=hsv.v; hSlider.value=H; updateAllFromHSV();
+});
+
+document.querySelectorAll('.btn.copy').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id=btn.dataset.copy;
+    const v=document.getElementById(id).value;
+    navigator.clipboard.writeText(v);
+    const old=btn.textContent; btn.textContent='✅'; setTimeout(()=>btn.textContent='복사',800);
+  });
+});
+
+/* init */
+resizeCanvas();
+updateAllFromHSV();
+</script>
+</body>
+</html>
