@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>한영타 변환기 | Tool Box</title>
+  <meta name="description" content="영문 자판으로 친 한글(예: dkssud → 안녕) / 한글을 영문 자판으로(예: 안녕 → dkssud) 상호 변환합니다." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='80'>⌨️</text></svg>">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="ads.js" defer></script>
+</head>
+<body>
+  <div class="wrap">
+    <!-- 공통 헤더 -->
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="Tool Box 홈">
+        <div class="logo"><span class="logo-text">Tool<br>Box</span></div>
+      </a>
+      <div class="title">
+        <h1>한영타 변환기</h1>
+        <p>영→한 / 한→영 오타 교정</p>
+      </div>
+      <nav class="actions" aria-hidden="true"></nav>
+    </header>
+
+    <!-- 입력 -->
+    <section class="card center" aria-labelledby="inTitle">
+      <h2 id="inTitle">입력</h2>
+
+      <div class="field">
+        <label>방향</label>
+        <div class="row" style="gap:12px">
+          <label class="row" style="gap:6px"><input type="radio" name="mode" value="e2k" checked> 영→한</label>
+          <label class="row" style="gap:6px"><input type="radio" name="mode" value="k2e"> 한→영</label>
+          <button id="swapMode" class="btn" title="방향 바꾸기" style="margin-left:auto">↔</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="src">텍스트</label>
+        <textarea id="src" rows="6" placeholder="예) dkssud dlf → 안녕 하세"></textarea>
+      </div>
+
+      <div class="row" style="gap:10px">
+        <button id="convertBtn" class="btn primary" style="flex:2">변환하기</button>
+        <button id="resetBtn" class="btn" style="flex:1">초기화</button>
+      </div>
+
+      <!-- 검색창 아래 광고 슬롯 예시 -->
+      <section class="ad-slot" id="ad-under-input">
+        <ins class="adsbygoogle" style="display:block"
+             data-ad-client="ca-pub-6022794906780783"
+             data-ad-slot="6135885040"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </section>
+    </section>
+
+    <!-- 결과 -->
+    <section class="card center result-wrap" id="resultWrap" aria-labelledby="outTitle" style="margin-top:18px">
+      <h2 id="outTitle">결과</h2>
+      <div class="muted" id="now">기준 시각: -</div>
+
+      <!-- 메인 결과 (가운데 정렬 파란박스) -->
+      <div class="headline" style="justify-content:center; margin-top:8px">
+        <span id="mainLine" class="copyable" aria-live="polite">-</span>
+        <button class="btn small" id="copyMain" style="position:absolute;right:12px">복사</button>
+      </div>
+
+      <!-- 세부 -->
+      <div class="kpi-line">
+        <span class="muted">입력</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <b id="srcText">-</b>
+          <button class="btn small" data-copy="srcText">복사</button>
+        </div>
+      </div>
+      <div class="kpi-line">
+        <span class="muted">변환</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <b id="dstText">-</b>
+          <button class="btn small" data-copy="dstText">복사</button>
+        </div>
+      </div>
+
+      <div class="muted" style="font-size:12px;margin-top:6px">
+        ※ 2-벌식 자판 기준. 대문자(Q/W/E/R/T)는 쌍자음/복모음(ㅃ/ㅉ/ㄸ/ㄲ/ㅆ)을 의미합니다.
+      </div>
+    </section>
+
+    <footer><p>© <span id="year"></span> Tool Box</p></footer>
+  </div>
+
+  <script>
+    // 공통 푸터/시각
+    const KST='Asia/Seoul';
+    const fmtNow=new Intl.DateTimeFormat('ko-KR',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('now').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    // ====== 2-벌식 키배치 ======
+    const key2Jamo = {
+      q:'ㅂ', w:'ㅈ', e:'ㄷ', r:'ㄱ', t:'ㅅ', y:'ㅛ', u:'ㅕ', i:'ㅑ', o:'ㅐ', p:'ㅔ',
+      a:'ㅁ', s:'ㄴ', d:'ㅇ', f:'ㄹ', g:'ㅎ', h:'ㅗ', j:'ㅓ', k:'ㅏ', l:'ㅣ',
+      z:'ㅋ', x:'ㅌ', c:'ㅊ', v:'ㅍ', b:'ㅠ', n:'ㅜ', m:'ㅡ',
+      Q:'ㅃ', W:'ㅉ', E:'ㄸ', R:'ㄲ', T:'ㅆ', O:'ㅒ', P:'ㅖ'
+    };
+    // 역매핑(자모→키)
+    const jamo2Key = Object.fromEntries(Object.entries(key2Jamo).map(([k,v])=>[v,k]));
+
+    // 한글 자모 표 (초/중/종 인덱스)
+    const CHO = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+    const JUNG= ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+    const JONG= ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+
+    // 복모음/복받침 조합
+    const V_COMBO = {"ㅗㅏ":"ㅘ","ㅗㅐ":"ㅙ","ㅗㅣ":"ㅚ","ㅜㅓ":"ㅝ","ㅜㅔ":"ㅞ","ㅜㅣ":"ㅟ","ㅡㅣ":"ㅢ"};
+    const F_COMBO = {"ㄱㅅ":"ㄳ","ㄴㅈ":"ㄵ","ㄴㅎ":"ㄶ","ㄹㄱ":"ㄺ","ㄹㅁ":"ㄻ","ㄹㅂ":"ㄼ","ㄹㅅ":"ㄽ","ㄹㅌ":"ㄾ","ㄹㅍ":"ㄿ","ㄹㅎ":"ㅀ","ㅂㅅ":"ㅄ"};
+
+    // 영→한: 영문키열 → 자모 → 음절 조합
+    function engToKor(str){
+      const jamos = [...str].map(ch => key2Jamo[ch] ?? ch);
+
+      const out = [];
+      let cho=null, jung=null, jong=null;
+
+      const flush = ()=>{
+        if(cho!==null && jung!==null){
+          const choI=CHO.indexOf(cho);
+          const jungI=JUNG.indexOf(jung);
+          const jongI=JONG.indexOf(jong??"");
+          if(choI>-1 && jungI>-1 && jongI>-1){
+            out.push(String.fromCharCode(0xAC00 + (choI*21 + jungI)*28 + jongI));
+          }else{
+            // 조합 실패 시 낱자 그대로
+            if(cho) out.push(cho);
+            if(jung) out.push(jung);
+            if(jong) out.push(jong);
+          }
+        }else{
+          if(cho) out.push(cho);
+          if(jung) out.push(jung);
+          if(jong) out.push(jong);
+        }
+        cho=jung=jong=null;
+      };
+
+      for(let i=0;i<jamos.length;i++){
+        const cur = jamos[i];
+
+        // 자모 아닌 문자면 플러시
+        if(!CHO.includes(cur) && !JUNG.includes(cur) && !JONG.includes(cur) &&
+           !Object.values(V_COMBO).includes(cur) && !Object.values(F_COMBO).includes(cur) &&
+           !"ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣㅐㅔㅒㅖ".includes(cur)){
+          flush(); out.push(cur); continue;
+        }
+
+        // 자/모 판단
+        if("ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅛㅜㅠㅡㅣ".includes(cur)){ // 모음
+          if(cho===null){ // 모음 먼저 오면 이전 flush
+            flush(); jung=cur;
+          }else if(jung===null){
+            jung=cur;
+          }else if(jong!==null){
+            // 종성+모음 → 종성 분해 불가하니 음절 flush 후 새 음절의 중성
+            flush(); cho=null; jung=cur;
+          }else{
+            // 중성 결합 시도
+            const comb = V_COMBO[jung+cur];
+            if(comb) jung=comb; else { flush(); jung=cur; }
+          }
+        }else{ // 자음
+          // 초성 or 종성 후보
+          if(jung===null){ // 아직 초성 단계
+            if(cho===null) cho=cur;
+            else{
+              // 초성 연속 → 앞 낱자 출력 후 새 초성
+              flush(); cho=cur;
+            }
+          }else{
+            // 종성 결합 시도
+            if(jong===null) jong=cur;
+            else{
+              const comb = F_COMBO[jong+cur];
+              if(comb) jong=comb;
+              else{
+                // 종성 완성 상태에서 자음 등장 → 음절 flush, 다음 음절의 초성
+                flush(); cho=cur;
+              }
+            }
+          }
+        }
+      }
+      flush();
+      return out.join('');
+    }
+
+    // 한→영: 음절 분해 → 자모 → 영문키열
+    function korToEng(str){
+      const res = [];
+      for(const ch of str){
+        const code = ch.charCodeAt(0);
+        if(code>=0xAC00 && code<=0xD7A3){
+          const s = code - 0xAC00;
+          const cho = Math.floor(s / 28 / 21);
+          const jung = Math.floor((s / 28) % 21);
+          const jong = s % 28;
+
+          const pushJamo = (j)=>{ if(jamo2Key[j]) res.push(jamo2Key[j]); else res.push(j); };
+
+          // 중성 쪼개기 (복모음은 원자모 2개로)
+          const decomposeV = (v)=>{
+            for(const [a,b] of Object.entries(V_COMBO)){
+              if(JUNG[v]===b){ pushJamo(a[0]); pushJamo(a[1]); return; }
+            }
+            pushJamo(JUNG[v]);
+          };
+          // 종성 쪼개기 (복받침은 2개로)
+          const decomposeF = (f)=>{
+            const j = JONG[f];
+            const pair = Object.entries(F_COMBO).find(([k,v])=>v===j);
+            if(pair){ pushJamo(pair[0][0]); pushJamo(pair[0][1]); }
+            else if(j) pushJamo(j);
+          };
+
+          pushJamo(CHO[cho]);
+          decomposeV(jung);
+          decomposeF(jong);
+        }else{
+          // 낱자 자모
+          if(jamo2Key[ch]) res.push(jamo2Key[ch]);
+          else res.push(ch);
+        }
+      }
+      return res.join('');
+    }
+
+    // UI
+    const src = document.getElementById('src');
+    const resultWrap = document.getElementById('resultWrap');
+    const mainLine = document.getElementById('mainLine');
+    const srcText = document.getElementById('srcText');
+    const dstText = document.getElementById('dstText');
+
+    function currentMode(){ return document.querySelector('input[name="mode"]:checked').value; }
+    function convert(){
+      const text = src.value;
+      if(!text.trim()){ alert('텍스트를 입력하세요.'); return; }
+      const mode = currentMode();
+      const out = mode==='e2k' ? engToKor(text) : korToEng(text);
+
+      mainLine.textContent = out;
+      srcText.textContent  = text;
+      dstText.textContent  = out;
+      resultWrap.style.display='block';
+      document.getElementById('now').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
+    }
+
+    document.getElementById('convertBtn').addEventListener('click', convert);
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      src.value=''; resultWrap.style.display='none';
+    });
+    document.getElementById('swapMode').addEventListener('click', ()=>{
+      const cur = currentMode();
+      document.querySelector(`input[name="mode"][value="${cur==='e2k'?'k2e':'e2k'}"]`).checked = true;
+      convert();
+    });
+    src.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)){ e.preventDefault(); convert(); }});
+    document.getElementById('copyMain').addEventListener('click', ()=>{
+      navigator.clipboard.writeText(mainLine.textContent||'');
+    });
+    document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=> {
+      const t = document.getElementById(b.dataset.copy)?.textContent?.trim() ?? '';
+      navigator.clipboard.writeText(t);
+    }));
+
+    // 광고 호출
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</body>
+</html>
