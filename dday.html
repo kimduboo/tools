@@ -136,151 +136,191 @@
     dateInput.addEventListener('blur',(e)=>{ e.target.value=formatYMD(e.target.value); });
 
 
-    // ===== 달력 위젯 ===== 
-    const picker=document.getElementById('picker');
-    function getInputYMDOrToday(){ const v=dateInput.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number); return {y,m,d};} return zonedYMD(new Date()); }
+// ===== 달력 위젯 =====
+const picker=document.getElementById('picker');
+    function getInputYMDOrToday(){ 
+      const v=dateInput.value; 
+      if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
+        const [y,m,d]=v.split('-').map(Number); 
+        return {y,m,d};
+      } 
+      return zonedYMD(new Date()); 
+    }
+
+    // 달력 열기/닫기 함수들
+    function openPicker(){
+      const {y,m} = getInputYMDOrToday(); 
+      buildCalendar(y, m-1);
+      const box = document.querySelector('.datebox'); 
+      const rect = box.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom; 
+      const spaceAbove = rect.top;
+      picker.classList.toggle('above', spaceBelow < 320 && spaceAbove > spaceBelow);
+      picker.style.display = 'block';
+    }
+
+    function closePicker(){ 
+      picker.style.display = 'none'; 
+    }
+
+    function syncCalendarFromInput(){ 
+      if(picker.style.display === 'block'){ 
+        const {y,m} = getInputYMDOrToday(); 
+        buildCalendar(y, m-1); 
+      } 
+    }
 
     function buildCalendar(y, m0){
-  picker.innerHTML='';
-  const header=document.createElement('div'); header.className='cal-header';
+      picker.innerHTML='';
+      const header=document.createElement('div'); header.className='cal-header';
 
-  const yearSelect=document.createElement('select');
-  for(let yy=y-50; yy<=y+50; yy++){
-    const o=document.createElement('option');
-    o.value=yy; o.textContent=yy; if(yy===y)o.selected=true;
-    yearSelect.appendChild(o);
-  }
+      const yearSelect=document.createElement('select');
+      for(let yy=y-50; yy<=y+50; yy++){
+        const o=document.createElement('option');
+        o.value=yy; o.textContent=yy; if(yy===y)o.selected=true;
+        yearSelect.appendChild(o);
+      }
 
-  const monthSelect=document.createElement('select');
-  for(let mm=0; mm<12; mm++){
-    const o=document.createElement('option');
-    o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true;
-    monthSelect.appendChild(o);
-  }
+      const monthSelect=document.createElement('select');
+      for(let mm=0; mm<12; mm++){
+        const o=document.createElement('option');
+        o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true;
+        monthSelect.appendChild(o);
+      }
 
-  const left=document.createElement('div'); left.style.display='flex'; left.style.gap='6px';
-  left.appendChild(yearSelect); left.appendChild(monthSelect);
+      const left=document.createElement('div'); left.style.display='flex'; left.style.gap='6px';
+      left.appendChild(yearSelect); left.appendChild(monthSelect);
 
-  const mid=document.createElement('div'); mid.style.display='flex'; mid.style.alignItems='center';
-  mid.style.gap='8px'; mid.style.justifyContent='center'; mid.style.flex='1';
-  const title=document.createElement('div'); title.className='cal-title';
-  title.textContent=`${y}년 ${String(m0+1).padStart(2,'0')}월`;
-  const prevBtn=document.createElement('button'); prevBtn.type='button'; prevBtn.className='navbtn'; prevBtn.textContent='◀';
-  const nextBtn=document.createElement('button'); nextBtn.type='button'; nextBtn.className='navbtn'; nextBtn.textContent='▶';
-  mid.appendChild(prevBtn); mid.appendChild(title); mid.appendChild(nextBtn);
+      const mid=document.createElement('div'); mid.style.display='flex'; mid.style.alignItems='center';
+      mid.style.gap='8px'; mid.style.justifyContent='center'; mid.style.flex='1';
+      const title=document.createElement('div'); title.className='cal-title';
+      title.textContent=`${y}년 ${String(m0+1).padStart(2,'0')}월`;
+      const prevBtn=document.createElement('button'); prevBtn.type='button'; prevBtn.className='navbtn'; prevBtn.textContent='◀';
+      const nextBtn=document.createElement('button'); nextBtn.type='button'; nextBtn.className='navbtn'; nextBtn.textContent='▶';
+      mid.appendChild(prevBtn); mid.appendChild(title); mid.appendChild(nextBtn);
 
-  header.appendChild(left); header.appendChild(mid);
-  picker.appendChild(header);
+      header.appendChild(left); header.appendChild(mid);
+      picker.appendChild(header);
 
-  const table=document.createElement('table');
-  const thead=document.createElement('thead'); const tr=document.createElement('tr');
-  ['일','월','화','수','목','금','토'].forEach(d=>{
-    const th=document.createElement('th'); th.textContent=d; tr.appendChild(th);
-  });
-  thead.appendChild(tr); table.appendChild(thead);
+      const table=document.createElement('table');
+      const thead=document.createElement('thead'); const tr=document.createElement('tr');
+      ['일','월','화','수','목','금','토'].forEach(d=>{
+        const th=document.createElement('th'); th.textContent=d; tr.appendChild(th);
+      });
+      thead.appendChild(tr); table.appendChild(thead);
 
-  const tbody=document.createElement('tbody'); let row=document.createElement('tr');
-  const first = new Date(y, m0, 1).getDay();       // 이번 달 1일의 요일
-  const last  = new Date(y, m0+1, 0).getDate();    // 이번 달 마지막 날짜
-  const prevLast = new Date(y, m0, 0).getDate();   // 지난 달 마지막 날짜
-  let col = 0;
+      const tbody=document.createElement('tbody'); let row=document.createElement('tr');
+      const first = new Date(y, m0, 1).getDay();
+      const last  = new Date(y, m0+1, 0).getDate();
+      const prevLast = new Date(y, m0, 0).getDate();
+      let col = 0;
 
-  function selectDate(offset, day){
-    let yy=y, mm=m0 + offset;
-    if(mm<0){ mm=11; yy--; }
-    if(mm>11){ mm=0; yy++; }
-    const mmStr=String(mm+1).padStart(2,'0');
-    const ddStr=String(day).padStart(2,'0');
-    dateInput.value=`${yy}-${mmStr}-${ddStr}`;
-    closePicker();
-  }
-  function addCell(text, offset, day){
-    const td=document.createElement('td');
-    td.textContent=text;
-    if(offset!==0) td.classList.add('other-month');
-    td.addEventListener('pointerdown',(ev)=>{ ev.stopPropagation(); selectDate(offset, day); }, {passive:true});
-    td.addEventListener('click',(ev)=>{
-  ev.preventDefault();
-  ev.stopPropagation();
-  const mm = String(m0+1).padStart(2,'0');
-  const dd = String(d).padStart(2,'0');
-  dateInput.value = `${y}-${mm}-${dd}`;
+      // 날짜 선택 함수
+      function selectDate(offset, day){
+        let yy = y, mm = m0 + offset;
+        if(mm < 0){ mm = 11; yy--; }
+        if(mm > 11){ mm = 0; yy++; }
+        const mmStr = String(mm+1).padStart(2,'0');
+        const ddStr = String(day).padStart(2,'0');
+        
+        dateInput.value = `${yy}-${mmStr}-${ddStr}`;
+        dateInput.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        setTimeout(() => {
+          closePicker();
+        }, 50);
+      }
 
-  // 입력 포맷/의존 로직이 있다면 트리거
-  dateInput.dispatchEvent(new Event('input', { bubbles:true }));
+      function addCell(text, offset, day){
+        const td = document.createElement('td');
+        td.textContent = text;
+        if(offset !== 0) td.classList.add('other-month');
+        
+        td.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          selectDate(offset, day);
+        }, { passive: false });
+        
+        row.appendChild(td); 
+        col++;
+        if(col === 7){ 
+          tbody.appendChild(row); 
+          row = document.createElement('tr'); 
+          col = 0; 
+        }
+      }
 
-  // 닫는 건 한 틱 뒤에 (값 세팅이 안정적으로 반영된 뒤)
-  setTimeout(()=>{
-    closePicker();
-    // 필요하면 포커스 유지
-    dateInput.focus();
-  }, 0);
-});
-    row.appendChild(td); col++;
-    if(col===7){ tbody.appendChild(row); row=document.createElement('tr'); col=0; }
-  }
+      // 달력 날짜 채우기
+      for(let i=first-1; i>=0; i--){
+        const d = prevLast - i;
+        addCell(d, -1, d);
+      }
+      for(let d=1; d<=last; d++){
+        addCell(d, 0, d);
+      }
+      const tail = (7 - col) % 7;
+      for(let d=1; d<=tail; d++){
+        addCell(d, +1, d);
+      }
 
-  // 1) 앞쪽 빈칸 → 지난 달 날짜로 채우기
-  for(let i=first-1; i>=0; i--){
-    const d = prevLast - i;
-    addCell(d, -1, d);
-  }
-  // 2) 이번 달
-  for(let d=1; d<=last; d++){
-    addCell(d, 0, d);
-  }
-  // 3) 뒤쪽 빈칸 → 다음 달 날짜로 채우기
-  const tail = (7 - col) % 7;
-  for(let d=1; d<=tail; d++){
-    addCell(d, +1, d);
-  }
+      table.appendChild(tbody); picker.appendChild(table);
 
-  table.appendChild(tbody); picker.appendChild(table);
+      // 년/월 선택 이벤트
+      const rerender = () => buildCalendar(parseInt(yearSelect.value,10), parseInt(monthSelect.value,10));
+      yearSelect.addEventListener('change', rerender);
+      monthSelect.addEventListener('change', rerender);
+      
+      prevBtn.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        e.stopPropagation();
+        let yy = parseInt(yearSelect.value,10), mm = parseInt(monthSelect.value,10);
+        mm--; 
+        if(mm < 0){ mm = 11; yy--; } 
+        yearSelect.value = yy; 
+        monthSelect.value = mm; 
+        buildCalendar(yy, mm);
+      });
+      
+      nextBtn.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        e.stopPropagation();
+        let yy = parseInt(yearSelect.value,10), mm = parseInt(monthSelect.value,10);
+        mm++; 
+        if(mm > 11){ mm = 0; yy++; } 
+        yearSelect.value = yy; 
+        monthSelect.value = mm; 
+        buildCalendar(yy, mm);
+      });
 
-  const rerender=()=>buildCalendar(parseInt(yearSelect.value,10), parseInt(monthSelect.value,10));
-  yearSelect.addEventListener('change',rerender);
-  monthSelect.addEventListener('change',rerender);
-  prevBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation();
-    let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10);
-    mm--; if(mm<0){mm=11; yy--;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm);
-  });
-  nextBtn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation();
-    let yy=parseInt(yearSelect.value,10), mm=parseInt(monthSelect.value,10);
-    mm++; if(mm>11){mm=0; yy++;} yearSelect.value=yy; monthSelect.value=mm; buildCalendar(yy,mm);
-  });
-
-  // 피커 내부는 바깥 클릭 닫기와 충돌 방지
-  // 달력 안에서 발생하는 포인터/터치/클릭은 바깥으로 안나가게
-['pointerdown','mousedown','touchstart','click'].forEach(evt=>{
-  picker.addEventListener(evt, (e)=> e.stopPropagation(), { passive:true });
-});
-
-}
-
-
-    function openPicker(){
-      const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1);
-      const box=document.querySelector('.datebox'); const rect=box.getBoundingClientRect();
-      const spaceBelow=window.innerHeight-rect.bottom; const spaceAbove=rect.top;
-      picker.classList.toggle('above', spaceBelow<320 && spaceAbove>spaceBelow);
-      picker.style.display='block';
-    }
-    function closePicker(){ picker.style.display='none'; }
-    document.getElementById('openCal').addEventListener('click',(e)=>{ e.stopPropagation(); picker.style.display==='block'? closePicker(): openPicker(); });
-    document.addEventListener('pointerdown',(e)=>{
-  const box = document.querySelector('.datebox');
-  const pickerEl = document.getElementById('picker');
-  // 달력 내부 클릭은 닫지 않음
-  if (pickerEl && pickerEl.contains(e.target)) return;
-  if (!box.contains(e.target)) closePicker();
-});
-    function syncCalendarFromInput(){ if(picker.style.display==='block'){ const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1); } }
-
-    function fmtSigned(n,d=1){
-      const v=Number(n.toFixed(d));
-      return (Object.is(v,-0)?0:v).toFixed(d);
+      // 달력 내부 클릭 전파 차단
+      picker.addEventListener('click', (e) => {
+        e.stopPropagation();
+      }, { passive: true });
     }
 
+    // 이벤트 리스너들
+    document.getElementById('openCal').addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      if(picker.style.display === 'block') {
+        closePicker();
+      } else {
+        openPicker();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      const box = document.querySelector('.datebox');
+      const pickerEl = document.getElementById('picker');
+      
+      if (pickerEl.style.display !== 'block') return;
+      if (pickerEl && pickerEl.contains(e.target)) return;
+      if (!box.contains(e.target)) {
+        closePicker();
+      }
+    });
+
+    /*KST*/
     function diffDaysKST(targetStr){
       if(!/^\d{4}-\d{2}-\d{2}$/.test(targetStr)) return null;
       const {y:cy,m:cm,d:cd}=zonedYMD(new Date());
