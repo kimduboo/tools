@@ -737,3 +737,20 @@ a.brand {
 /* 4) 메인 결과(파란 박스) 가운데 정렬 + 복사 버튼은 우측 고정 */
 .headline{justify-content:center;position:relative}
 .headline .btn{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
+
+
+/* === Color Picker 전용 === */
+.picker{display:grid;grid-template-columns:auto 44px;gap:12px;align-items:center}
+.sv-wrap{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+#sv{display:block;width:100%;height:100%}
+.knob{position:absolute;width:18px;height:18px;border:2px solid #fff;border-radius:50%;
+      box-shadow:0 2px 6px rgba(0,0,0,.25);transform:translate(-50%,-50%);pointer-events:none}
+.hue-col{height:100%;border-radius:12px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center}
+#h{writing-mode:bt-lr;-webkit-appearance:none;appearance:none;width:100%;height:100%;
+   background:linear-gradient(to top, red,#ff0,#0f0,#0ff,#00f,#f0f,red);border:none}
+#h::-webkit-slider-thumb{appearance:none;width:20px;height:6px;background:#fff;border-radius:3px;
+   box-shadow:0 0 0 2px rgba(0,0,0,.25)}
+.preview{display:flex;gap:12px;align-items:center;margin-top:12px}
+.swatch{width:42px;height:42px;border-radius:10px;border:1px solid var(--line)}
+.helper{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.helper .chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#f3f6ff;color:#3b4a6b}
