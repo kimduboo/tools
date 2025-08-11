@@ -718,3 +718,22 @@ a.brand {
     background-color: transparent;
     z-index: 1000;
   }
+
+  /* === Unit Converter minimal overrides (safe to append) === */
+/* 1) 입력/도움 2단 레이아웃 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+
+/* 2) 맞바꾸기 버튼을 셀렉트 사이에 배치 */
+.row{display:flex;gap:10px;align-items:stretch}
+.row > .field:first-of-type{order:1}
+.row > button#swapBtn{order:2;align-self:center;min-width:42px}
+.row > .field:last-of-type{order:3}
+
+/* 3) 칩 섹션 살짝 톤 맞춤 */
+.help .chips{display:flex;gap:8px;flex-wrap:wrap}
+.help .chip{background:#eef2ff;border-color:var(--line)}
+
+/* 4) 메인 결과(파란 박스) 가운데 정렬 + 복사 버튼은 우측 고정 */
+.headline{justify-content:center;position:relative}
+.headline .btn{position:absolute;right:12px;top:50%;transform:translateY(-50%)}

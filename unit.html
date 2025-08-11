@@ -63,19 +63,19 @@
         <h2>입력</h2>
 
         <div class="field">
-          <label for="category">변환 종류</label>
-          <select id="category">
-            <option value="length">길이</option>
-            <option value="mass">무게</option>
-            <option value="area">면적</option>
-            <option value="volume">부피</option>
-            <option value="temp">온도</option>
-            <option value="pressure">압력</option>
-            <option value="speed">속도</option>
-            <option value="fe">연비</option>
-            <option value="data">데이터</option>
-          </select>
-        </div>
+            <label for="category">변환 종류</label>
+            <select id="category">
+              <option value="length">길이</option>
+              <option value="mass">무게</option>
+              <option value="area">면적</option>
+              <option value="volume">부피</option>
+              <option value="temp">온도</option>
+              <option value="pressure">압력</option>
+              <option value="speed">속도</option>
+              <option value="data">데이터</option>
+            </select>
+            <small class="muted">단위 목록이 자동으로 바뀝니다.</small>
+          </div>
 
         <div class="row">
           <div class="field" style="flex:1">
@@ -101,12 +101,6 @@
       </section>
 
       <aside class="help center" style="width:100%">
-        <h3>사용 팁</h3>
-        <ul class="muted" style="margin:0 0 10px 18px">
-          <li>종류를 고르면 단위 목록이 자동으로 바뀝니다.</li>
-          <li><b>↔</b> 버튼으로 단위를 빠르게 맞바꿀 수 있습니다.</li>
-          <li>Enter를 눌러도 변환됩니다.</li>
-        </ul>
         <div class="chips">
           <span class="chip">길이: mm, cm, m, km</span>
           <span class="chip">무게: g, kg, t</span>
@@ -115,7 +109,6 @@
           <span class="chip">온도: ℃, ℉, K</span>
           <span class="chip">압력: Pa, atm, bar, mmHg</span>
           <span class="chip">속도: m/s, km/h, mph</span>
-          <span class="chip">연비: km/L, L/100km, MPG(US)</span>
           <span class="chip">데이터: B, KB, MB, GB, TB (1024)</span>
         </div>
       </aside>
@@ -167,7 +160,7 @@
       </div>
 
       <div class="muted" style="font-size:12px;margin-top:6px">
-        ※ 데이터 단위는 1024 기준(이진)입니다. 연비 변환은 미국 MPG(US) 기준을 사용합니다.
+        ※ 데이터 단위는 1024 기준(이진)입니다.
       </div>
     </section>
 
@@ -202,7 +195,6 @@
       temp:['℃','℉','K'],
       pressure:['Pa','bar','atm','mmHg'],
       speed:['m/s','km/h','mph'],
-      fe:['km/L','L/100km','MPG(US)'],
       data:['B','KB','MB','GB','TB']
     };
 
@@ -330,6 +322,16 @@
     }
     document.getElementById('copyMain').addEventListener('click', ()=>copyById('mainLine'));
     document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copyById(b.dataset.copy)));
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 페이지 안의 모든 구글 광고 슬롯을 찾습니다.
+      const adSlots = document.querySelectorAll('ins.adsbygoogle');
+      adSlots.forEach(slot => {
+        // 각각의 광고 슬롯에 대해 초기화를 요청합니다.
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      });
+    });
   </script>
 </body>
 </html>
