@@ -199,7 +199,23 @@
     td.textContent=text;
     if(offset!==0) td.classList.add('other-month');
     td.addEventListener('pointerdown',(ev)=>{ ev.stopPropagation(); selectDate(offset, day); }, {passive:true});
-    td.addEventListener('click',(ev)=>{ ev.stopPropagation(); selectDate(offset, day); });
+    td.addEventListener('click',(ev)=>{
+  ev.preventDefault();
+  ev.stopPropagation();
+  const mm = String(m0+1).padStart(2,'0');
+  const dd = String(d).padStart(2,'0');
+  dateInput.value = `${y}-${mm}-${dd}`;
+
+  // 입력 포맷/의존 로직이 있다면 트리거
+  dateInput.dispatchEvent(new Event('input', { bubbles:true }));
+
+  // 닫는 건 한 틱 뒤에 (값 세팅이 안정적으로 반영된 뒤)
+  setTimeout(()=>{
+    closePicker();
+    // 필요하면 포커스 유지
+    dateInput.focus();
+  }, 0);
+});
     row.appendChild(td); col++;
     if(col===7){ tbody.appendChild(row); row=document.createElement('tr'); col=0; }
   }
@@ -234,9 +250,11 @@
   });
 
   // 피커 내부는 바깥 클릭 닫기와 충돌 방지
-  ['pointerdown','mousedown','click'].forEach(t=>{
-    picker.addEventListener(t,(e)=>e.stopPropagation());
-  });
+  // 달력 안에서 발생하는 포인터/터치/클릭은 바깥으로 안나가게
+['pointerdown','mousedown','touchstart','click'].forEach(evt=>{
+  picker.addEventListener(evt, (e)=> e.stopPropagation(), { passive:true });
+});
+
 }
 
 
@@ -249,7 +267,13 @@
     }
     function closePicker(){ picker.style.display='none'; }
     document.getElementById('openCal').addEventListener('click',(e)=>{ e.stopPropagation(); picker.style.display==='block'? closePicker(): openPicker(); });
-    document.addEventListener('pointerdown',(e)=>{ const box=document.querySelector('.datebox'); if(!box.contains(e.target)) closePicker(); });
+    document.addEventListener('pointerdown',(e)=>{
+  const box = document.querySelector('.datebox');
+  const pickerEl = document.getElementById('picker');
+  // 달력 내부 클릭은 닫지 않음
+  if (pickerEl && pickerEl.contains(e.target)) return;
+  if (!box.contains(e.target)) closePicker();
+});
     function syncCalendarFromInput(){ if(picker.style.display==='block'){ const {y,m}=getInputYMDOrToday(); buildCalendar(y, m-1); } }
 
     function fmtSigned(n,d=1){
