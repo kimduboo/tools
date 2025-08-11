@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>랜덤 색상 팔레트 생성기 | Tool Box</title>
+  <meta name="description" content="디자이너를 위한 조화로운 랜덤 팔레트 생성기. 색상 계열·느낌·조화 방식을 선택하고 3~10개의 색상을 즉시 만들어요." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='80'>🎨</text></svg>">
+
+  <style>
+    /* --- 추가 보조 스타일 (styles.css와 충돌 없음) --- */
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+    .countbox{display:flex;gap:6px;align-items:center}
+    .countbox .btn{width:40px}
+    .swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+    @media (max-width:760px){.swatches{grid-template-columns:repeat(2,1fr)}}
+    .swatch{
+      position:relative;height:120px;border-radius:14px;border:1px solid var(--line);
+      display:flex;align-items:flex-end;justify-content:space-between;padding:10px 10px;
+      cursor:pointer;transition:transform .08s ease; user-select:none;
+    }
+    .swatch:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+    .swatch .label{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:12px}
+    .codepop{
+      position:absolute;left:10px;right:10px;bottom:10px;display:none;flex-direction:column;gap:6px
+    }
+    .swatch.active .codepop{display:flex}
+    .code{
+      display:flex;justify-content:space-between;align-items:center;gap:8px;
+      background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:12px
+    }
+    .code .copy{border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:#fff;cursor:pointer}
+    .chips.helper{margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="Tool Box 홈">
+        <div class="logo"><span class="logo-text">Tool<br>Box</span></div>
+      </a>
+      <div class="title">
+        <h1>랜덤 색상 팔레트 생성기</h1>
+        <p>색상 계열·느낌·조화 방식으로 **조화로운** 팔레트를 빠르게</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="card center" style="width:100%">
+        <h2>설정</h2>
+
+        <div class="toolbar">
+          <div class="field" style="min-width:160px">
+            <label for="family">색상 계열</label>
+            <select id="family">
+              <option value="auto">자동(랜덤)</option>
+              <option value="warm">웜(Warm)</option>
+              <option value="cool">쿨(Cool)</option>
+              <option value="red">레드</option>
+              <option value="orange">오렌지</option>
+              <option value="yellow">옐로</option>
+              <option value="green">그린</option>
+              <option value="teal">틸</option>
+              <option value="blue">블루</option>
+              <option value="purple">퍼플</option>
+              <option value="pink">핑크</option>
+              <option value="neutral">뉴트럴(무채)</option>
+            </select>
+          </div>
+
+          <div class="field" style="min-width:160px">
+            <label for="mood">느낌(톤)</label>
+            <select id="mood">
+              <option value="auto">자동(추천)</option>
+              <option value="pastel">파스텔</option>
+              <option value="vivid">비비드</option>
+              <option value="muted">뮤트/소프트</option>
+              <option value="dark">딥/다크</option>
+              <option value="neon">네온</option>
+            </select>
+          </div>
+
+          <div class="field" style="min-width:180px">
+            <label for="scheme">조화 방식</label>
+            <select id="scheme">
+              <option value="auto">자동(추천)</option>
+              <option value="analogous">유사색(Analogous)</option>
+              <option value="complement">보색(Complementary)</option>
+              <option value="triad">삼각색(Triad)</option>
+              <option value="split">분할보색(Split-Comp.)</option>
+              <option value="mono">단색 음영(Monochrome)</option>
+            </select>
+          </div>
+
+          <div class="countbox">
+            <label class="muted" for="count" style="margin-right:6px">색상 수</label>
+            <button class="btn" id="minus">–</button>
+            <input id="count" type="number" value="5" min="3" max="10" style="width:64px;text-align:center" />
+            <button class="btn" id="plus">+</button>
+          </div>
+
+          <button id="gen" class="btn primary">생성하기</button>
+          <button id="refresh" class="btn">새로고침</button>
+        </div>
+
+        <div class="chips helper">
+          <span class="chip">팁: 칸을 누르면 HEX/RGB/CMYK가 펼쳐져요</span>
+          <span class="chip">복사 아이콘 클릭으로 값 복사</span>
+        </div>
+
+        <div id="grid" class="swatches" aria-live="polite" style="margin-top:6px"></div>
+      </section>
+
+      <section class="card center" style="width:100%;margin-top:18px">
+        <h2>팔레트 설명</h2>
+        <p class="muted" style="margin:0">
+          팔레트는 HSL 공간에서 **기준 Hue**를 고른 뒤, 선택한 <b>조화 방식</b>에 맞춰 각 색의 Hue 간격을 배치하고
+          <b>느낌(톤)</b>에 따라 Saturation/Lightness 범위를 조정해 생성합니다.
+        </p>
+      </section>
+    </main>
+
+    <footer><p>© <span id="year"></span> Tool Box</p></footer>
+  </div>
+
+  <script>
+    // 툴 공통
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ===== 유틸: HSL/HEX/RGB/CMYK =====
+    const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+    function hslToRgb(h,s,l){
+      h=(h%360+360)%360; s=clamp(s,0,100)/100; l=clamp(l,0,100)/100;
+      const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+      let r=0,g=0,b=0;
+      if(h<60){r=c;g=x}else if(h<120){r=x;g=c}
+      else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}
+      else if(h<300){r=x;b=c}else{r=c;b=x}
+      r=Math.round((r+m)*255); g=Math.round((g+m)*255); b=Math.round((b+m)*255);
+      return {r,g,b};
+    }
+    const toHex=n=>n.toString(16).padStart(2,'0');
+    function rgbToHex({r,g,b}){return '#'+toHex(r)+toHex(g)+toHex(b)}
+    function rgbToCmyk({r,g,b}){
+      const R=r/255,G=g/255,B=b/255;
+      const K=1-Math.max(R,G,B);
+      if(K===1) return {c:0,m:0,y:0,k:100};
+      const C=((1-R-K)/(1-K))*100, M=((1-G-K)/(1-K))*100, Y=((1-B-K)/(1-K))*100, Kp=K*100;
+      return {c:Math.round(C),m:Math.round(M),y:Math.round(Y),k:Math.round(Kp)};
+    }
+
+    // ===== 파라미터 맵 =====
+    const families={
+      auto:   ()=>Math.random()*360,
+      warm:   ()=>randRange(10,70),
+      cool:   ()=>randRange(180,260),
+      red:    ()=>randRange(350,15),
+      orange: ()=>randRange(20,40),
+      yellow: ()=>randRange(45,65),
+      green:  ()=>randRange(90,150),
+      teal:   ()=>randRange(160,180),
+      blue:   ()=>randRange(200,230),
+      purple: ()=>randRange(260,290),
+      pink:   ()=>randRange(300,340),
+      neutral:()=>randRange(0,360)
+    };
+    function randRange(a,b){ // a<=x<b (각도 랩 포함)
+      if(a<=b) return a+Math.random()*(b-a);
+      const t=Math.random(); return (t<((360-a)/(360-a+b))) ? a+t*(360-a) : 0+(t-((360-a)/(360-a+b)))*(b);
+    }
+
+    const moods={
+      auto:  ()=>({s:[40,80], l:[35,65]}),
+      pastel:()=>({s:[20,45], l:[70,88]}),
+      vivid: ()=>({s:[70,95], l:[45,60]}),
+      muted: ()=>({s:[15,35], l:[45,70]}),
+      dark:  ()=>({s:[35,70], l:[20,38]}),
+      neon:  ()=>({s:[85,100], l:[55,65]})
+    };
+
+    const schemes={
+      auto:(n)=>pickRandomScheme(n),
+      analogous:(n)=>spreadSteps(n, 20),
+      complement:(n)=>mirrorAround(180, n),
+      triad:(n)=>cyclic([0,120,240], n),
+      split:(n)=>cyclic([0,150,210], n),
+      mono:(n)=>Array.from({length:n},()=>0)
+    };
+
+    function pickRandomScheme(n){
+      const keys=['analogous','complement','triad','split','mono'];
+      return schemes[keys[Math.floor(Math.random()*keys.length)]](n);
+    }
+    function spreadSteps(n,gap){
+      const half=Math.floor(n/2); const arr=[];
+      for(let i=-half;i<=half;i++){ if(n%2===0 && i===0) continue; arr.push(i*gap); }
+      return arr;
+    }
+    function mirrorAround(deg,n){
+      if(n===1) return [0];
+      const arr=[0,deg]; while(arr.length<n){ arr.push((deg/2)*(arr.length%2?1:-1)); }
+      return arr.slice(0,n);
+    }
+    function cyclic(points,n){
+      const res=[]; for(let i=0;i<n;i++){ res.push(points[i%points.length] + 0); } return res;
+    }
+
+    // ===== 생성 로직 =====
+    const grid=document.getElementById('grid');
+    const familySel=document.getElementById('family');
+    const moodSel=document.getElementById('mood');
+    const schemeSel=document.getElementById('scheme');
+    const countInput=document.getElementById('count');
+
+    let seedHue = 0;
+
+    function generate(refresh=false){
+      // count
+      let n=clamp(parseInt(countInput.value||'5',10),3,10); countInput.value=n;
+
+      // seed
+      if(refresh || seedHue===null){ seedHue = families[familySel.value](); }
+      else if(familySel.value!=='auto' && refresh){ seedHue = families[familySel.value](); }
+
+      // mood
+      const {s:[sMin,sMax], l:[lMin,lMax]} = moods[moodSel.value]();
+
+      // scheme offsets
+      const offs = schemes[schemeSel.value](n);
+
+      // build colors
+      const colors = offs.map(off=>{
+        const h = (seedHue + off + 360) % 360;
+        const s = Math.round(randRange(sMin,sMax));
+        const l = Math.round(randRange(lMin,lMax));
+        const rgb = hslToRgb(h,s,l);
+        const hex = rgbToHex(rgb);
+        const cmyk = rgbToCmyk(rgb);
+        return {h,s,l,hex,rgb,cmyk};
+      });
+
+      render(colors, n);
+    }
+
+    function render(colors){
+      // 그리드 컬럼 맞춤
+      const cols = Math.min(colors.length,5);
+      grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+      grid.innerHTML='';
+      colors.forEach((c,idx)=>{
+        const el=document.createElement('div');
+        el.className='swatch';
+        el.style.backgroundColor=c.hex;
+        el.setAttribute('role','button');
+        el.setAttribute('aria-label',`색상 ${idx+1} ${c.hex}`);
+        el.innerHTML=`
+          <span class="label">${c.hex.toUpperCase()}</span>
+          <div class="codepop">
+            <div class="code"><span>HEX</span><span>${c.hex.toUpperCase()}</span><button class="copy" data-copy="${c.hex}">복사</button></div>
+            <div class="code"><span>RGB</span><span>rgb(${c.rgb.r}, ${c.rgb.g}, ${c.rgb.b})</span><button class="copy" data-copy="rgb(${c.rgb.r}, ${c.rgb.g}, ${c.rgb.b})">복사</button></div>
+            <div class="code"><span>CMYK</span><span>${c.cmyk.c}%, ${c.cmyk.m}%, ${c.cmyk.y}%, ${c.cmyk.k}%</span><button class="copy" data-copy="${c.cmyk.c}%, ${c.cmyk.m}%, ${c.cmyk.y}%, ${c.cmyk.k}%">복사</button></div>
+          </div>`;
+        el.addEventListener('click',()=>{
+          document.querySelectorAll('.swatch.active').forEach(s=>s.classList.remove('active'));
+          el.classList.toggle('active');
+        });
+        grid.appendChild(el);
+      });
+
+      // 복사
+      grid.querySelectorAll('.copy').forEach(b=>{
+        b.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          navigator.clipboard.writeText(b.dataset.copy);
+          const old=b.textContent; b.textContent='✅'; setTimeout(()=>b.textContent=old,900);
+        });
+      });
+    }
+
+    // 이벤트
+    document.getElementById('gen').addEventListener('click', ()=>generate(true));
+    document.getElementById('refresh').addEventListener('click', ()=>generate(true));
+    familySel.addEventListener('change', ()=>generate(true));
+    moodSel.addEventListener('change', ()=>generate());
+    schemeSel.addEventListener('change', ()=>generate());
+    document.getElementById('minus').addEventListener('click', ()=>{countInput.value=Math.max(3,parseInt(countInput.value||'5',10)-1); generate();});
+    document.getElementById('plus').addEventListener('click', ()=>{countInput.value=Math.min(10,parseInt(countInput.value||'5',10)+1); generate();});
+    countInput.addEventListener('change', ()=>generate());
+
+    // 최초
+    seedHue = null;
+    generate(true);
+  </script>
+</body>
+</html>
