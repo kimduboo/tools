@@ -132,7 +132,11 @@
     const fmtNow=new Intl.DateTimeFormat('ko-KR',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     const fmtYMD=new Intl.DateTimeFormat('en-CA',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit'});
     function zonedYMD(d){ const [y,m,dd]=fmtYMD.format(new Date(d)).split('-').map(Number); return {y, m, d: dd}; }
-
+// 누락된 fmtSigned 함수 추가 (KST 변수 선언 아래쪽에)
+function fmtSigned(num) {
+  const rounded = Math.round(num * 10) / 10; // 소수점 첫째자리까지
+  return rounded >= 0 ? rounded : rounded; // 그냥 숫자 반환
+}
     const dateInput=document.getElementById('date');
     function formatYMD(v){ v=(v||'').replace(/\D/g,'').slice(0,8); if(v.length>4)v=v.slice(0,4)+'-'+v.slice(4); if(v.length>7)v=v.slice(0,7)+'-'+v.slice(7,9); return v; }
     dateInput.addEventListener('input',(e)=>{ e.target.value=formatYMD(e.target.value); syncCalendarFromInput(); });
