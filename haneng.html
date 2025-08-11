@@ -140,6 +140,112 @@
       flush();
       return out.join('');
     }
+    // 1) QWERTY -> 두벌식 자모 매핑
+function mapQwertyToJamo(src){
+  const m = {
+    q:'ㅂ', w:'ㅈ', e:'ㄷ', r:'ㄱ', t:'ㅅ', y:'ㅛ', u:'ㅕ', i:'ㅑ', o:'ㅐ', p:'ㅔ',
+    a:'ㅁ', s:'ㄴ', d:'ㅇ', f:'ㄹ', g:'ㅎ', h:'ㅗ', j:'ㅓ', k:'ㅏ', l:'ㅣ',
+    z:'ㅋ', x:'ㅌ', c:'ㅊ', v:'ㅍ', b:'ㅠ', n:'ㅜ', m:'ㅡ',
+    Q:'ㅃ', W:'ㅉ', E:'ㄸ', R:'ㄲ', T:'ㅆ', O:'ㅒ', P:'ㅖ'
+  };
+  return [...src].map(ch => m[ch] || ch).join('');
+}
+
+// 2) 자모 → 음절 조합
+function composeHangul(jamo){
+  // 기본 표
+  const CHO  = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+  const JONG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+  // 복합자 모음/종성 결합표
+  const JV = { // 중성 결합 (앞 + 뒤 → 결과)
+    'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ',
+    'ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ',
+    'ㅡㅣ':'ㅢ'
+  };
+  const JC = { // 종성 결합
+    'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ',
+    'ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ',
+    'ㅂㅅ':'ㅄ'
+  };
+
+  // 자/모 판별
+  const isCho  = c => ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'].includes(c);
+  const isJung = c => ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅛ','ㅜ','ㅠ','ㅡ','ㅣ'].includes(c);
+  const isJong = c => ['ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'].includes(c);
+
+  const out = [];
+  let L='', V='', T=''; // 초/중/종
+
+  // 헬퍼: 현재 음절을 플러시
+  const flush = () => {
+    if(!L){ if(V){ out.push(V); V=''; } return; }
+    const li = CHO.indexOf(L);
+    const vi = JUNG.indexOf(V);
+    const ti = JONG.indexOf(T);
+    if(li>=0 && vi>=0){
+      const code = 0xAC00 + (li*21 + vi)*28 + (ti>=0?ti:0);
+      out.push(String.fromCharCode(code));
+    }else{
+      // 조합 불가 시 원형 출력
+      if(L) out.push(L);
+      if(V) out.push(V);
+      if(T) out.push(T);
+    }
+    L=V=T='';
+  };
+
+  const pushVowel = (v) => {
+    if(!L){ // 초성 없으면 모음 단독
+      if(V){ // 모음 연속 → 복모음 시도
+        const key = V+v; 
+        if(JV[key]) V = JV[key];
+        else { out.push(V); V = v; }
+      }else{
+        V = v;
+      }
+      return;
+    }
+    if(!V){ V = v; return; }
+    // 이미 중성이 있을 때 또 모음 → 복모음 시도
+    const key = V+v;
+    if(JV[key]) V = JV[key];
+    else { flush(); V = v; } // 새 음절 시작
+  };
+
+  const pushConsonant = (c) => {
+    if(!L){ L = c; return; }
+    if(L && !V){ // 초성만 있고 또 자음 → 쌍자 처리(초성) 대응
+      const pair = {'ㄱ':'ㄲ','ㄷ':'ㄸ','ㅂ':'ㅃ','ㅅ':'ㅆ','ㅈ':'ㅉ'}[L] || '';
+      if(pair && c===L) { L = pair; return; }
+      // 그 외엔 새 초성으로 교체
+      out.push(L); L = c; return;
+    }
+    if(L && V && !T){ // 종성 후보
+      if(isJong(c)){ T = c; return; }
+      // 자음이지만 종성이 될 수 없는 경우 → 새 음절
+      flush(); L = c; return;
+    }
+    if(T){ // 이미 종성이 있는데 자음 추가 → 겹받침 시도
+      const key = T+c;
+      if(JC[key]){ T = JC[key]; return; }
+      // 겹받침 안되면 이전 음절 확정 후 새 초성으로
+      flush(); L = c; return;
+    }
+  };
+
+  for(const ch of jamo){
+    if(isJung(ch))      pushVowel(ch);
+    else if(isCho(ch) || isJong(ch)) pushConsonant(ch);
+    else { // 한글 자모 외 문자는 끊고 그대로 출력
+      flush(); out.push(ch);
+    }
+  }
+  flush();
+  return out.join('');
+}
+    
 
     // 한→영
     function korToEng(str){
