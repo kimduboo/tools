@@ -500,6 +500,11 @@ a.brand {
     visibility: hidden;
   }
   
+  /* 달력에서 이전/다음 달 날짜 */
+.picker td.other-month{ color:#94a3b8; }           /* 어두운 회색 */
+.picker td.other-month:hover{ background:#f1f5f9; } /* 은은한 hover */
+
+
   /* ===== 버튼 ===== */
   .btn {
     display: inline-grid;
