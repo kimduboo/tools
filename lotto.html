@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>로또 번호 생성기 (6/45) | Tool Box</title>
+  <meta name="description" content="중복 없이 1~45 사이에서 6개를 뽑아 세트로 생성합니다. 정렬, 보너스 포함, 제외 번호 설정 지원." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='80'>🎲</text></svg>">
+  <style>
+    /* styles.css 보조 스타일(충돌 없음) */
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+    .pill{display:inline-grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:999px;
+          border:1px solid var(--line);background:#fff;font-weight:800}
+    .line{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .result-item{display:flex;justify-content:space-between;align-items:center;gap:10px;
+                 border:1px dashed var(--line);background:#fff;border-radius:16px;padding:12px}
+    .result-wrap{display:none}
+    .bonus{background:#fef3c7;border-color:#fde68a}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="Tool Box 홈">
+        <div class="logo"><span class="logo-text">Tool<br>Box</span></div>
+      </a>
+      <div class="title">
+        <h1>로또 번호 생성기 (6/45)</h1>
+        <p>중복 없이 깔끔한 세트 생성</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="card center" style="width:100%">
+        <h2>설정</h2>
+
+        <div class="row">
+          <div class="field" style="min-width:140px">
+            <label for="sets">세트 개수</label>
+            <input id="sets" type="number" min="1" max="10" value="5" />
+          </div>
+          <div class="field" style="min-width:160px">
+            <label for="sort">정렬</label>
+            <select id="sort">
+              <option value="asc">오름차순</option>
+              <option value="draw">뽑힌 순서</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:160px">
+            <label for="bonus">보너스 번호</label>
+            <select id="bonus">
+              <option value="yes">포함</option>
+              <option value="no" selected>미포함</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;min-width:260px">
+            <label for="exclude">제외 번호 (쉼표/공백 구분)</label>
+            <input id="exclude" type="text" placeholder="예: 3, 7 11 23" />
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="gen" class="btn primary" style="flex:2">생성하기</button>
+          <button id="reset" class="btn" style="flex:1">초기화</button>
+        </div>
+      </section>
+
+      <section class="card center result-wrap" id="resultWrap" style="width:100%;margin-top:18px">
+        <h2>결과</h2>
+        <div class="muted" id="now">기준 시각: -</div>
+        <div id="list" style="display:grid;gap:10px;margin-top:10px"></div>
+        <div class="muted" style="font-size:12px;margin-top:6px">
+          ※ 무작위 추출 도구이며 당첨을 보장하지 않습니다.
+        </div>
+      </section>
+    </main>
+
+    <footer><p>© <span id="year"></span> Tool Box</p></footer>
+  </div>
+
+  <script>
+    const KST='Asia/Seoul';
+    const fmtNow=new Intl.DateTimeFormat('ko-KR',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const $=(s)=>document.querySelector(s);
+
+    const yearEl=$("#year"); yearEl.textContent=new Date().getFullYear();
+    const nowEl=$("#now");
+
+    function parseExclude(str){
+      return new Set(
+        (str||"")
+          .split(/[,\s]+/).map(x=>x.trim()).filter(Boolean)
+          .map(n=>parseInt(n,10))
+          .filter(n=>Number.isInteger(n)&&n>=1&&n<=45)
+      );
+    }
+
+    function drawOne(excludes){
+      const pool=[];
+      for(let i=1;i<=45;i++) if(!excludes.has(i)) pool.push(i);
+      if(pool.length<6) throw new Error("제외 번호가 너무 많아요. 최소 6개 이상 풀을 남겨주세요.");
+      // 피셔-예이츠 셔플 일부
+      for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+      const nums=pool.slice(0,6);
+      const bonusPool=pool.slice(6);
+      const bonus = bonusPool.length? bonusPool[Math.floor(Math.random()*bonusPool.length)] : null;
+      return {nums, bonus};
+    }
+
+    function renderLine(nums, bonus, sortMode){
+      const n = sortMode==='asc' ? [...nums].sort((a,b)=>a-b) : nums;
+      const wrap=document.createElement('div'); wrap.className='result-item';
+      const line=document.createElement('div'); line.className='line';
+      n.forEach(v=>{ const b=document.createElement('span'); b.className='pill'; b.textContent=v; line.appendChild(b); });
+      if(bonus!=null){
+        const sp=document.createElement('span'); sp.className='muted'; sp.textContent='＋';
+        const b=document.createElement('span'); b.className='pill bonus'; b.textContent=bonus;
+        line.appendChild(sp); line.appendChild(b);
+      }
+      const copy=document.createElement('button'); copy.className='btn small'; copy.textContent='복사';
+      copy.addEventListener('click',()=>{
+        const arr=[...n]; if(bonus!=null) arr.push(bonus);
+        navigator.clipboard.writeText(arr.join(', '));
+        const old=copy.textContent; copy.textContent='✅'; setTimeout(()=>copy.textContent=old,900);
+      });
+      wrap.appendChild(line); wrap.appendChild(copy);
+      return wrap;
+    }
+
+    function generate(){
+      const sets = Math.min(10, Math.max(1, parseInt($("#sets").value||"5",10)));
+      $("#sets").value = sets;
+      const sortMode = $("#sort").value;
+      const withBonus = $("#bonus").value === 'yes';
+      const excludes = parseExclude($("#exclude").value);
+
+      const list=$("#list"); list.innerHTML='';
+      for(let i=0;i<sets;i++){
+        const {nums, bonus} = drawOne(excludes);
+        list.appendChild(renderLine(nums, withBonus? bonus : null, sortMode));
+      }
+      $("#resultWrap").style.display='block';
+      nowEl.textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
+    }
+
+    $("#gen").addEventListener('click', generate);
+    $("#reset").addEventListener('click', ()=>{
+      $("#sets").value=5; $("#sort").value='asc'; $("#bonus").value='no'; $("#exclude").value='';
+      $("#resultWrap").style.display='none';
+    });
+
+    // 엔터로 생성
+    ["sets","exclude"].forEach(id=>{
+      document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter') generate(); });
+    });
+  </script>
+</body>
+</html>
