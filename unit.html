@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>단위 변환기 | Tool Box</title>
+    <!-- 단위 변환기 파비콘 (자 📏) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='80'>📏</text></svg>">
+
+
+  <meta name="description" content="길이, 무게, 면적, 부피, 온도, 압력, 속도, 연비, 데이터 등 자주 쓰는 단위를 빠르게 변환합니다." />
+  <style>
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, transparent 60%),linear-gradient(#fafafa,#eaeaea);background-repeat:no-repeat,no-repeat;background-size:1600px 800px,auto;background-position:right -200px top -180px,0 0}
+
+    /* 헤더 */
+
+    a.brand{justify-self:start;display:flex;align-items:center;text-decoration:none;color:inherit}
+
+
+    /* 카드/폼 */
+    .card h2{margin:0 0 12px;font-size:18px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+     select,input[type="text"],input[type="number"]{width:100%;background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:14px;outline:none;font-size:16px}
+    select:focus,input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+    .row{display:flex;gap:10px;align-items:center}
+    .btn:hover{filter:brightness(1.05)}
+    .btn.small{padding:6px 8px;border-radius:10px;font-size:12px}
+    .muted{color:#6b7280}
+    
+    /* 결과 */
+    .result-wrap{display:none}
+    .headline{display:flex;align-items:center;justify-content:center;background:#eef2ff;border-radius:12px;padding:12px;font-weight:800;font-size:20px;position:relative}
+    .headline .btn{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
+    .kpi-line{display:flex;align-items:center;justify-content:space-between;border:1px dashed var(--line);border-radius:16px;padding:14px;background:#fff}
+    .spacer{height:12px}
+    footer{margin:24px 0 0;color:var(--muted);font-size:13px;text-align:center}
+    /* 도움 패널 */
+    .help{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+    .help h3{margin:0 0 8px;font-size:16px}
+    .chips{display:flex;gap:6px;flex-wrap:wrap}
+    .chip{font-size:11px;color:#3b4a6b;background:var(--chip);border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+  </style>
+    <script src="ads.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="툴서랍 홈">
+        <div class="logo"><span class="logo-text">Tool<br>Box</span></div>
+      </a>
+      <div class="title">
+        <h1>단위 변환기</h1>
+        <p>길이/무게/면적/부피 등</p>
+      </div>
+      <nav class="actions" aria-hidden="true"></nav>
+    </header>
+
+    <!-- 입력 & 안내 -->
+    <section class="grid2">
+      <section class="card center" style="width:100%">
+        <h2>입력</h2>
+
+        <div class="field">
+          <label for="category">변환 종류</label>
+          <select id="category">
+            <option value="length">길이</option>
+            <option value="mass">무게</option>
+            <option value="area">면적</option>
+            <option value="volume">부피</option>
+            <option value="temp">온도</option>
+            <option value="pressure">압력</option>
+            <option value="speed">속도</option>
+            <option value="fe">연비</option>
+            <option value="data">데이터</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="field" style="flex:1">
+            <label for="fromUnit">변환할 단위</label>
+            <select id="fromUnit"></select>
+          </div>
+          <div class="field" style="flex:1">
+            <label for="toUnit">변환될 단위</label>
+            <select id="toUnit"></select>
+          </div>
+          <button id="swapBtn" class="btn" style="align-self:flex-end" title="단위 맞바꾸기">↔</button>
+        </div>
+
+        <div class="field">
+          <label for="val">값 입력</label>
+          <input id="val" type="number" placeholder="변환할 값을 입력하세요" inputmode="decimal" />
+        </div>
+
+        <div class="row" style="gap:10px">
+          <button id="convertBtn" class="btn primary" style="flex:2">변환하기</button>
+          <button id="resetBtn" class="btn" style="flex:1">초기화</button>
+        </div>
+      </section>
+
+      <aside class="help center" style="width:100%">
+        <h3>사용 팁</h3>
+        <ul class="muted" style="margin:0 0 10px 18px">
+          <li>종류를 고르면 단위 목록이 자동으로 바뀝니다.</li>
+          <li><b>↔</b> 버튼으로 단위를 빠르게 맞바꿀 수 있습니다.</li>
+          <li>Enter를 눌러도 변환됩니다.</li>
+        </ul>
+        <div class="chips">
+          <span class="chip">길이: mm, cm, m, km</span>
+          <span class="chip">무게: g, kg, t</span>
+          <span class="chip">면적: m², km², ha, 평</span>
+          <span class="chip">부피: mL, L, m³</span>
+          <span class="chip">온도: ℃, ℉, K</span>
+          <span class="chip">압력: Pa, atm, bar, mmHg</span>
+          <span class="chip">속도: m/s, km/h, mph</span>
+          <span class="chip">연비: km/L, L/100km, MPG(US)</span>
+          <span class="chip">데이터: B, KB, MB, GB, TB (1024)</span>
+        </div>
+      </aside>
+      <section class="ad-slot" id="adTop">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-6022794906780783"
+             data-ad-slot="6135885040"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </section>
+    </section>
+
+    <!-- 결과 -->
+    <section class="card center result-wrap" id="resultWrap" aria-labelledby="resultTitle" style="margin-top:18px">
+      <h2 id="resultTitle">결과</h2>
+
+      <div class="muted" id="now">기준 시각: -</div>
+
+      <div class="headline" style="margin-top:8px">
+        <span id="mainLine" class="copyable" aria-live="polite">-</span>
+        <button class="btn small" id="copyMain">복사</button>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="kpi-line">
+        <span class="muted">입력</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <b id="srcText">-</b>
+          <button class="btn small" data-copy="srcText">복사</button>
+        </div>
+      </div>
+
+      <div class="kpi-line">
+        <span class="muted">변환</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <b id="dstText">-</b>
+          <button class="btn small" data-copy="dstText">복사</button>
+        </div>
+      </div>
+
+      <div class="kpi-line" id="extraRow" style="display:none">
+        <span class="muted" id="extraLabel">참고</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <b id="extraValue">-</b>
+          <button class="btn small" data-copy="extraValue">복사</button>
+        </div>
+      </div>
+
+      <div class="muted" style="font-size:12px;margin-top:6px">
+        ※ 데이터 단위는 1024 기준(이진)입니다. 연비 변환은 미국 MPG(US) 기준을 사용합니다.
+      </div>
+    </section>
+
+    <footer><p>© <span id="year"></span> Tool Box</p></footer>
+  </div>
+
+  <script>
+    // KST 시각
+    const KST='Asia/Seoul';
+    const fmtNow=new Intl.DateTimeFormat('ko-KR',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('now').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    // 단위 사전
+    // 선형 단위: base 로 환산 (길이:m, 무게:kg, 면적:m2, 부피:m3, 압력:Pa, 속도:m/s, 데이터:Byte)
+    const MAP={
+      length:{ base:'m', units:{ 'mm':1e-3,'cm':1e-2,'m':1,'km':1e3 } },
+      mass  :{ base:'kg',units:{ 'g':1e-3,'kg':1,'t':1e3 } },
+      area  :{ base:'m²',units:{ 'm²':1,'km²':1e6,'ha':1e4,'평':3.305785 } },
+      volume:{ base:'m³',units:{ 'mL':1e-6,'L':1e-3,'m³':1 } },
+      pressure:{ base:'Pa',units:{ 'Pa':1,'bar':1e5,'atm':101325,'mmHg':133.322368 } },
+      speed :{ base:'m/s',units:{ 'm/s':1,'km/h':1/3.6,'mph':0.44704 } },
+      data  :{ base:'B', units:{ 'B':1,'KB':1024,'MB':1024**2,'GB':1024**3,'TB':1024**4 } },
+      // 온도/연비는 별도 처리
+    };
+
+    const CATEGORY_UNITS={
+      length:['mm','cm','m','km'],
+      mass:['g','kg','t'],
+      area:['m²','km²','ha','평'],
+      volume:['mL','L','m³'],
+      temp:['℃','℉','K'],
+      pressure:['Pa','bar','atm','mmHg'],
+      speed:['m/s','km/h','mph'],
+      fe:['km/L','L/100km','MPG(US)'],
+      data:['B','KB','MB','GB','TB']
+    };
+
+    const categorySel=document.getElementById('category');
+    const fromSel=document.getElementById('fromUnit');
+    const toSel=document.getElementById('toUnit');
+    const valInput=document.getElementById('val');
+
+    function populateUnits(){
+      const list=CATEGORY_UNITS[categorySel.value];
+      fromSel.innerHTML=''; toSel.innerHTML='';
+      list.forEach((u,i)=>{
+        const o1=document.createElement('option'); o1.value=o1.textContent=u; fromSel.appendChild(o1);
+        const o2=document.createElement('option'); o2.value=o2.textContent=u; toSel.appendChild(o2);
+      });
+      // default: 1번째 → 2번째
+      if(list.length>1){ toSel.selectedIndex=1; }
+    }
+
+    function toBase(category,unit,val){
+      if(category==='temp'){
+        if(unit==='℃') return { tC: val };
+        if(unit==='℉') return { tC: (val-32)*5/9 };
+        if(unit==='K')  return { tC: val-273.15 };
+      }
+      if(category==='fe'){ // base: km/L
+        if(unit==='km/L') return { kpl: val };
+        if(unit==='L/100km') return { kpl: 100/val };      // L/100km -> km/L
+        if(unit==='MPG(US)') return { kpl: val*1.609344/3.785411784 };
+      }
+      // 선형
+      const m=MAP[category];
+      const f=m.units[unit];
+      const baseVal=val * f;
+      return { baseVal };
+    }
+
+    function fromBase(category,unit,base){
+      if(category==='temp'){
+        const tC=base.tC;
+        if(unit==='℃') return tC;
+        if(unit==='℉') return tC*9/5+32;
+        if(unit==='K')  return tC+273.15;
+      }
+      if(category==='fe'){
+        const kpl=base.kpl;
+        if(unit==='km/L') return kpl;
+        if(unit==='L/100km') return 100/kpl;
+        if(unit==='MPG(US)') return kpl*3.785411784/1.609344;
+      }
+      const m=MAP[category];
+      const f=m.units[unit];
+      return base.baseVal / f;
+    }
+
+    function fmt(n){
+      if(!isFinite(n)) return '-';
+      const v=Math.abs(n);
+      const d = v>=100 ? 2 : v>=1 ? 3 : 5;
+      return Number(n.toFixed(d)).toString();
+    }
+
+    function convert(){
+      const cat=categorySel.value;
+      const from=fromSel.value, to=toSel.value;
+      const v=parseFloat(valInput.value);
+      if(isNaN(v)){ alert('값을 입력하세요.'); return; }
+
+      const base=toBase(cat,from,v);
+      const out=fromBase(cat,to,base);
+
+      // 화면 표시
+      const srcText=`${fmt(v)} ${from}`;
+      const dstText=`${fmt(out)} ${to}`;
+
+      document.getElementById('mainLine').textContent = `${srcText} → ${dstText}`;
+      document.getElementById('srcText').textContent  = srcText;
+      document.getElementById('dstText').textContent  = dstText;
+
+      // 부가 정보 (온도/연비일 때 나머지 표기)
+      const extra=document.getElementById('extraRow');
+      if(cat==='temp'){
+        const others=['℃','℉','K'].filter(u=>u!==to);
+        const a=fmt(fromBase('temp',others[0],base))+' '+others[0];
+        const b=fmt(fromBase('temp',others[1],base))+' '+others[1];
+        document.getElementById('extraLabel').textContent='다른 스케일';
+        document.getElementById('extraValue').textContent=`${a} / ${b}`;
+        extra.style.display='flex';
+      }else if(cat==='fe'){
+        const list=['km/L','L/100km','MPG(US)'].filter(u=>u!==to);
+        const a=fmt(fromBase('fe',list[0],base))+' '+list[0];
+        const b=fmt(fromBase('fe',list[1],base))+' '+list[1];
+        document.getElementById('extraLabel').textContent='참고 연비';
+        document.getElementById('extraValue').textContent=`${a} / ${b}`;
+        extra.style.display='flex';
+      }else{
+        extra.style.display='none';
+      }
+
+      document.getElementById('resultWrap').style.display='block';
+      document.getElementById('now').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
+    }
+
+    // 초기 세팅
+    populateUnits();
+
+    // 이벤트
+    categorySel.addEventListener('change', populateUnits);
+    document.getElementById('convertBtn').addEventListener('click', convert);
+    document.getElementById('swapBtn').addEventListener('click', ()=>{
+      const a=fromSel.selectedIndex;
+      fromSel.selectedIndex=toSel.selectedIndex;
+      toSel.selectedIndex=a;
+    });
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      valInput.value=''; document.getElementById('resultWrap').style.display='none';
+    });
+    valInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') convert(); });
+
+    function copyById(id){
+      const txt=document.getElementById(id).textContent.trim();
+      navigator.clipboard.writeText(txt).then(()=>{
+        // no-op
+      });
+    }
+    document.getElementById('copyMain').addEventListener('click', ()=>copyById('mainLine'));
+    document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copyById(b.dataset.copy)));
+  </script>
+</body>
+</html>
