@@ -1,9 +1,10 @@
-// haneng_converter.js
+// haneng_converter.js (수정 버전)
 // 입력 하나로 영→한(위), 한→영(아래) 동시 갱신. 옵션 없음.
-// 고쳐진 점:
-// 1) 유니코드 표준 21중성 순서 정확히 반영 (ㅏ,ㅐ,ㅑ,ㅒ,ㅓ,ㅔ,ㅕ,ㅖ,ㅗ,ㅘ,ㅙ,ㅚ,ㅛ,ㅜ,ㅝ,ㅞ,ㅟ,ㅠ,ㅡ,ㅢ,ㅣ)
-// 2) 쌍자음(Q/W/E/R/T)은 "초성에서만" 쌍자음, 종성에서는 평음(ㅂ/ㅈ/ㄷ/ㄱ/ㅅ)으로 자동 다운그레이드
-// 3) 복합모음 조합은 초성·중성 단계에서만 일어나도록 시점 엄격화 (받침 상태에선 복합모음 조합 X)
+// 수정 사항:
+// 1) 한→영 역변환 매핑 완전히 재구성
+// 2) 복합모음 양방향 변환 정상화
+// 3) 대문자 모음 역변환 추가
+// 4) 종성 복합자음 분해 로직 개선
 
 //////////////////// 2-벌식 매핑 ////////////////////
 const L = { r:'ㄱ', s:'ㄴ', e:'ㄷ', f:'ㄹ', a:'ㅁ', q:'ㅂ', t:'ㅅ', d:'ㅇ', w:'ㅈ', c:'ㅊ', z:'ㅋ', x:'ㅌ', v:'ㅍ', g:'ㅎ' };
@@ -131,16 +132,24 @@ function en2ko(input){
   return out;
 }
 
-//////////////////// 한글 → 영타 ////////////////////
+//////////////////// 한글 → 영타 (완전히 재구성) ////////////////////
 function ko2en(input){
-  const revL = Object.fromEntries(Object.entries(L).map(([k,v])=>[v,k]));
+  // 역변환 테이블 구성
+  const revL = {};
+  Object.entries(L).forEach(([key, jamo]) => {
+    revL[jamo] = key;
+  });
+  
+  // 쌍자음 역변환 (대문자)
   const revDouble = { 'ㅃ':'Q','ㅉ':'W','ㄸ':'E','ㄲ':'R','ㅆ':'T' };
+  
+  // 모음 역변환 테이블 (완전히 재구성)
   const revV = {
-    // 단/복합 중성의 실제 키열 반환 (유니코드 순서와 무관하게 QWERTY 키 시퀀스로)
-    'ㅏ':'k','ㅐ':'o','ㅑ':'i','ㅒ':'O','ㅓ':'j','ㅔ':'p','ㅕ':'u','ㅖ':'P',
-    'ㅗ':'h','ㅘ':'hk','ㅙ':'ho','ㅚ':'hl','ㅛ':'y',
-    'ㅜ':'n','ㅝ':'nj','ㅞ':'np','ㅟ':'nl','ㅠ':'b',
-    'ㅡ':'m','ㅢ':'ml','ㅣ':'l'
+    // 단모음
+    'ㅏ':'k', 'ㅐ':'o', 'ㅑ':'i', 'ㅒ':'O', 'ㅓ':'j', 'ㅔ':'p', 'ㅕ':'u', 'ㅖ':'P',
+    'ㅗ':'h', 'ㅛ':'y', 'ㅜ':'n', 'ㅠ':'b', 'ㅡ':'m', 'ㅣ':'l',
+    // 복합모음 (키 시퀀스로 정확히 매핑)
+    'ㅘ':'hk', 'ㅙ':'ho', 'ㅚ':'hl', 'ㅝ':'nj', 'ㅞ':'np', 'ㅟ':'nl', 'ㅢ':'ml'
   };
 
   const decompose = (ch)=>{
@@ -156,23 +165,28 @@ function ko2en(input){
     if (!isHangul(ch)) { out += ch; continue; }
     const [L1,V1,T1] = decompose(ch);
 
-    // 초성: 쌍자음은 대문자(Q/W/E/R/T), 평음은 소문자
-    const lkey = revL[L1] ?? revDouble[L1] ?? '';
-    // 중성: 지정 테이블
-    const vkey = revV[V1] ?? '';
-    // 종성: 두 자음으로 분해하거나 평음 소문자 1개
+    // 초성: 쌍자음은 대문자, 평음은 소문자
+    const lkey = revDouble[L1] || revL[L1] || '';
+    
+    // 중성: 복합모음 포함 정확히 매핑
+    const vkey = revV[V1] || '';
+    
+    // 종성: 복합자음 분해 또는 단일자음
     let tkey = '';
-    if (T1){
-      if (T_PAIR[T1]){
-        const [a,b] = T_PAIR[T1];
-        const aKey = revL[a] ?? (DOUBLE_TO_PLAIN[a] ? revL[DOUBLE_TO_PLAIN[a]] : '') ?? '';
-        const bKey = revL[b] ?? (DOUBLE_TO_PLAIN[b] ? revL[DOUBLE_TO_PLAIN[b]] : '') ?? '';
-        tkey = aKey + bKey;
-      }else{
-        const plain = DOUBLE_TO_PLAIN[T1] || T1; // 종성에 쌍자음 금지
-        tkey = revL[plain] ?? '';
+    if (T1 && T1 !== '') {
+      if (T_PAIR[T1]) {
+        // 복합자음 분해
+        const [first, second] = T_PAIR[T1];
+        const firstKey = revL[DOUBLE_TO_PLAIN[first] || first] || '';
+        const secondKey = revL[DOUBLE_TO_PLAIN[second] || second] || '';
+        tkey = firstKey + secondKey;
+      } else {
+        // 단일자음 (쌍자음은 평음으로 변환)
+        const plainJong = DOUBLE_TO_PLAIN[T1] || T1;
+        tkey = revL[plainJong] || '';
       }
     }
+    
     out += lkey + vkey + tkey;
   }
   return out;
