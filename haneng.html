@@ -1,53 +1,34 @@
 <!doctype html>
 <html lang="ko" data-theme="light">
 <head>
-
-<!-- 페이지별 크롤링/색인 제어 -->
+  <!-- 페이지별 크롤링/색인 제어 -->
 <meta name="robots"
       content="noindex, nofollow, noarchive, nosnippet, noimageindex, max-image-preview:none">
 <!-- 구글봇에 확실히: (선택) -->
 <meta name="googlebot"
       content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-     
+  
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>한영타 변환기 | Tool Box</title>
-
-  <!-- 파비콘: 🔤 -->
+  <meta name="description" content="두벌식 자판 기준, 영타→한글 / 한글→영타를 옵션 없이 동시에 실시간 변환합니다." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23ffffff'/%3E%3Ctext x='50' y='66' font-size='58' text-anchor='middle'%3E🔤%3C/text%3E%3C/svg%3E"/>
-
-  <meta name="description" content="영타↔한타 자동 인식/수동 전환 지원. 종성-초성 끌어오기 버그 없이 정확한 2-벌식 한글 조합." />
-
   <script src="ads.js"></script>
   <link rel="stylesheet" href="styles.css">
-
-  <!-- 이 페이지 전용 최소 스타일 (공용 스타일은 변경 없음) -->
   <style>
-    /* 페이지 스코프 */
+    /* 이 페이지 전용 최소 스타일 (공용 것 손대지 않음) */
     main.haneng-main .field textarea{
-      width:100%;
-      background:#fff;
-      color:var(--ink);
-      border:2px solid var(--line);
-      border-radius:14px;
-      padding:16px 14px;
+      width:100%; background:#fff; color:var(--ink);
+      border:2px solid var(--line); border-radius:14px;
+      padding:16px 14px; font-size:16px; line-height:1.5; min-height:140px; resize:vertical;
       outline:none;
-      font-size:16px;
-      line-height:1.5;
-      min-height:140px;
-      resize:vertical;
     }
     main.haneng-main .field textarea:focus{
-      border-color:var(--acc);
-      box-shadow:0 0 0 4px rgba(37,99,235,0.15);
+      border-color:var(--acc); box-shadow:0 0 0 4px rgba(37,99,235,.15);
     }
-    /* 결과 큰 글자 영역 재사용: 버튼 우측 고정 */
     .headline{justify-content:center;position:relative}
     .headline .btn{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
-    /* 모드 셀렉터 행 */
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .row .grow{flex:1}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
   </style>
 </head>
 <body>
@@ -57,49 +38,27 @@
         <div class="logo" aria-hidden="true"><span class="logo-text">Tool<br>Box</span></div>
       </a>
       <div class="title">
-        <h1>한영타 변환기</h1>
-        <p>자동 인식 · 실시간 변환 · 2-벌식</p>
+        <h1>한/영타 변환기</h1>
+        <p>두벌식 자판 · 실시간 · 옵션 없음</p>
       </div>
       <div class="spacer" aria-hidden="true"></div>
     </header>
 
     <main class="haneng-main">
-      <!-- 입력 카드 -->
-      <section class="card" aria-labelledby="inTitle">
-        <h2 id="inTitle">입력</h2>
+      <section class="card" aria-labelledby="calcTitle">
+        <h2 id="calcTitle">입력</h2>
 
         <div class="field">
           <label for="src">텍스트</label>
           <textarea id="src" placeholder="영타 또는 한글을 붙여넣거나 입력하세요"></textarea>
         </div>
 
-        <div class="row" style="margin-top:6px">
-          <div class="field grow">
-            <label for="mode">모드</label>
-            <select id="mode" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;">
-              <option value="auto">자동 인식 (권장)</option>
-              <option value="en2ko">영 → 한</option>
-              <option value="ko2en">한 → 영</option>
-            </select>
-          </div>
-
-          <div class="field" style="min-width:180px">
-            <label for="upperDoubles">대문자=된소리</label>
-            <select id="upperDoubles" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;">
-              <option value="on">ON (Q/W/E/R/T → ㅃ/ㅉ/ㄸ/ㄲ/ㅆ)</option>
-              <option value="off">OFF (대문자도 보통 자음)</option>
-            </select>
-          </div>
-        </div>
-
         <div class="actions">
-          <button id="convertBtn" class="btn primary">변환하기</button>
-          <button id="resetBtn" class="btn">초기화</button>
+          <button id="clearBtn" class="btn">비우기</button>
         </div>
 
-        <div class="ad-slot" id="adTop">
-          <ins class="adsbygoogle"
-            style="display:block"
+        <div class="ad-slot">
+          <ins class="adsbygoogle" style="display:block"
             data-ad-client="ca-pub-6022794906780783"
             data-ad-slot="6135885040"
             data-ad-format="auto"
@@ -107,44 +66,39 @@
         </div>
       </section>
 
-      <!-- 결과 카드 -->
-      <section class="card result-wrap" id="resultWrap" aria-labelledby="outTitle" style="display:block">
-        <h2 id="outTitle">결과</h2>
+      <!-- 결과 한 카드 안에 위/아래 배치 -->
+      <section class="card" aria-labelledby="resultTitle">
+        <h2 id="resultTitle">실시간 결과</h2>
         <div class="result">
-          <div class="muted" id="nowKst">현재 시각: -</div>
 
+          <!-- 1) 영타 → 한글 -->
+          <div class="muted">영타 → 한글</div>
           <div class="headline">
-            <span id="result" class="copyable">-</span>
-            <button class="btn small" id="copyMain">복사</button>
+            <span id="koOut" class="copyable">-</span>
+            <button class="btn small" id="copyKo">복사</button>
           </div>
 
+          <!-- 2) 한글 → 영타 -->
           <div class="kpi-line">
-            <span class="muted">감지/선택 모드</span>
+            <span class="muted">한글 → 영타(QWERTY)</span>
             <div style="display:flex;align-items:center;gap:10px;">
-              <b id="modeEcho">-</b>
-              <button class="btn small" data-copy="modeEcho">복사</button>
+              <b id="enOut" class="mono">-</b>
+              <button class="btn small" id="copyEn">복사</button>
             </div>
           </div>
 
+          <!-- 3) 원문 에코 -->
           <div class="kpi-line">
-            <span class="muted">입력</span>
+            <span class="muted">입력 원문</span>
             <div style="display:flex;align-items:center;gap:10px;">
-              <b id="echoIn" class="mono">-</b>
-              <button class="btn small" data-copy="echoIn">복사</button>
-            </div>
-          </div>
-
-          <div class="kpi-line">
-            <span class="muted">변환</span>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <b id="echoOut">-</b>
-              <button class="btn small" data-copy="echoOut">복사</button>
+              <b id="echo" class="mono">-</b>
+              <button class="btn small" id="copyEcho">복사</button>
             </div>
           </div>
 
           <div class="muted" style="font-size:12px">
-            * 2-벌식 기준. 대문자(Q/W/E/R/T)=된소리는 옵션에서 ON/OFF 가능.<br/>
-            * 종성 끌어오기 방지: 다음 키가 모음이면 현재 자음은 다음 초성으로 처리.
+            규칙: 두벌식 기준. Q/W/E/R/T → ㅃ/ㅉ/ㄸ/ㄲ/ㅆ (영타 입력 시).<br/>
+            종성 끌어오기 방지: 다음 키가 모음이면 현재 자음은 다음 음절의 초성으로 처리합니다.
           </div>
 
           <div id="adMid" class="ad-slot"></div>
@@ -157,12 +111,8 @@
 
   <script type="module" src="haneng_converter.js"></script>
   <script>
-    // 공통: 연도 갱신 + 광고 초기화 + 현재 KST 시각
     document.getElementById('year').textContent=new Date().getFullYear();
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById('nowKst').textContent =
-        new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
-          .format(new Date()) + ' (KST)';
       (window.adsbygoogle=window.adsbygoogle||[]).push({});
     });
   </script>
