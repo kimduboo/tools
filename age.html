@@ -30,7 +30,6 @@
     <main class="age-main">
       <!-- 입력 카드 -->
       <section class="card" aria-labelledby="calcTitle">
-        <h2 id="calcTitle">입력</h2>
 
         <div class="field">
           <label for="dob">생년월일</label>
@@ -46,7 +45,6 @@
           <button id="calcBtn" class="btn primary">계산하기</button>
           <button id="resetBtn" class="btn">초기화</button>
         </div>
-        <p></p>
 
         <div class="ad-slot" id="adTop">
           <!-- 중간 수평 디스플레이 -->
@@ -68,14 +66,14 @@
 
           <div class="headline">
             <span id="ageMain" class="copyable">만 - 세</span>
-            <button class="btn small" id="copyAge">복사</button>
+            <button class="copy-btn" id="copyAge">복사</button>
           </div>
 
           <div class="kpi-line">
             <span class="muted">다음 생일까지</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <b id="dday">-일</b>
-              <button class="btn small" data-copy="dday">복사</button>
+              <button class="copy-btn" data-copy="dday">복사</button>
             </div>
           </div>
 
@@ -83,7 +81,7 @@
             <span class="muted">살아온 날</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <b id="lived">-일</b>
-              <button class="btn small" data-copy="lived">복사</button>
+              <button class="copy-btn" data-copy="lived">복사</button>
             </div>
           </div>
 
@@ -91,7 +89,7 @@
             <span class="muted">총 개월</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <b id="ageMonths">-개월</b>
-              <button class="btn small" data-copy="ageMonths">복사</button>
+              <button class="copy-btn" data-copy="ageMonths">복사</button>
             </div>
           </div>
 
@@ -99,7 +97,7 @@
             <span class="muted">세/개월</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <b id="ageYearMonth">-세 -개월</b>
-              <button class="btn small" data-copy="ageYearMonth">복사</button>
+              <button class="copy-btn" data-copy="ageYearMonth">복사</button>
             </div>
           </div>
 
@@ -107,7 +105,7 @@
             <span class="muted">세미콜론</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <b id="ageSemicolon">-;-</b>
-              <button class="btn small" data-copy="ageSemicolon">복사</button>
+              <button class="copy-btn" data-copy="ageSemicolon">복사</button>
             </div>
           </div>
 
@@ -118,7 +116,7 @@
       </section>
     </main>
 
-    <footer><p>© <span id="year"></span> Tool Box </p></footer>
+    <footer class="footer"><p>© <span id="year"></span>Tool Box • 만나이(생활연령) 계산기</p></footer>
   </div>
 
   <script>

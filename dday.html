@@ -53,7 +53,6 @@
           <button id="calcBtn" class="btn primary" aria-label="D-Day 계산하기">계산하기</button>
           <button id="resetBtn" class="btn" aria-label="입력 초기화">초기화</button>
         </div>
-        <p></p>
 
         <div class="ad-slot" id="adTop">
           <!-- 중간 수평 디스플레이 -->
@@ -75,12 +74,12 @@
 
           <div class="flex" style="margin-top:6px">
             <div class="big copyable" id="headline" aria-live="polite">D--</div>
-            <button class="btn small" id="copyHeadline" aria-label="D-Day 복사">복사</button>
+            <button class="copy-btn" id="copyHeadline" aria-label="D-Day 복사">복사</button>
           </div>
 
           <div class="flex space">
             <div class="muted copyable" id="subline">-</div>
-            <button class="btn small" id="copySubline">복사</button>
+            <button class="copy-btn" id="copySubline">복사</button>
           </div>
 
           <div class="grid kpi-grid" style="margin-top:8px">
@@ -88,28 +87,28 @@
                 <span class="muted">남은 날</span>
                 <div class="kpi-content">
                   <b id="daysAbs">-일</b>
-                  <button class="btn small" data-copy="daysAbs">복사</button>
+                  <button class="copy-btn" data-copy="daysAbs">복사</button>
                 </div>
             </div>
             <div class="kpi">
                 <span class="muted">주</span>
                 <div class="kpi-content">
                     <b id="weeks">-주</b>
-                    <button class="btn small" data-copy="weeks">복사</button>
+                    <button class="copy-btn" data-copy="weeks">복사</button>
                 </div>
             </div>
             <div class="kpi">
                 <span class="muted">개월(30일)</span>
                 <div class="kpi-content">
                     <b id="months">-개월</b>
-                    <button class="btn small" data-copy="months">복사</button>
+                    <button class="copy-btn" data-copy="months">복사</button>
                 </div>
             </div>
             <div class="kpi">
                 <span class="muted">평일 수</span>
                 <div class="kpi-content">
                     <b id="bizdays">-일</b>
-                    <button class="btn small" data-copy="bizdays">복사</button>
+                    <button class="copy-btn" data-copy="bizdays">복사</button>
                 </div>
             </div>
           </div>
@@ -121,7 +120,7 @@
       </section>
     </main>
 
-    <footer><p>© <span id="year"></span> Tool Box </p></footer>
+    <footer class="footer"><p>© <span id="year"></span>Tool Box • D-Day 계산기</p></footer>
   </div>
 
   <script>
