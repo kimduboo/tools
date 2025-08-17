@@ -6,41 +6,38 @@
   <title>한영타 변환기 | Tool Box</title>
   <meta name="description" content="두벌식 자판 기준, 영타↔한글 / 한글↔영타를 옵션 없이 동시에 실시간 변환합니다." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23ffffff'/%3E%3Ctext x='50' y='66' font-size='58' text-anchor='middle'%3E🔤%3C/text%3E%3C/svg%3E"/>
-
-  <!-- 외부 리소스 -->
   <script src="ads.js"></script>
   <link rel="stylesheet" href="styles.css">
-
   <style>
-    /* ===== 한영타 변환기 전용 스타일 ===== */
-    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-    .converter-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
-    .input-section { padding: 20px; border-bottom: 1px solid #e2e8f0; }
-    .input-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
-    .input-area { position: relative; }
-    .main-input { width: 100%; min-height: 120px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.2s; font-family: inherit; }
-    .main-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    .main-input::placeholder { color: #9ca3af; }
-    .mode-selector, .mode-toggle { display: flex; justify-content: center; gap: 20px; padding: 16px 20px; background: var(--chip); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .mode-option { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); font-weight: 500; }
-    .mode-option input[type="radio"] { width: 16px; height: 16px; accent-color: var(--acc); }
-    .results-section { padding: 20px; }
-    .result-item { margin-bottom: 24px; }
-    .result-item:last-child { margin-bottom: 0; }
-    .result-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .result-area { position: relative; }
-    .result-textarea { width: 100%; min-height: 100px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.2s; font-family: inherit; background: #f8fafc; color: #1e293b; }
-    .result-textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); background: #ffffff; }
-    .result-textarea.korean { font-family: inherit; }
-    .result-textarea.english { font-family: 'Consolas', 'Monaco', monospace; }
-    .result-textarea.empty { color: #9ca3af; font-style: italic; display:block; }
-    .result-area .copy-btn { position: absolute; right: 12px; top: 12px; }
-    .auto-info, .auto-mode-info { background: var(--chip); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 13px; color: var(--ink); }
-    @media (max-width: 640px) { .container { padding: 16px; } .mode-toggle, .mode-selector { flex-direction: column; gap: 12px; align-items: center; } }
+    /* 한영타 전용 */
+    .input-label { font-size:14px; font-weight:600; color:#374151; margin-bottom:8px; display:block; }
+    .input-area { position:relative; }
+    .main-input,
+    .result-textarea {
+      width:100%; min-height:120px; padding:16px;
+      border:2px solid var(--line); border-radius:8px;
+      font-size:16px; line-height:1.5; resize:vertical; outline:none;
+    }
+    .main-input:focus,
+    .result-textarea:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.1); }
+
+    .result-item { margin-bottom:24px; }
+    .result-label { font-size:14px; font-weight:600; color:#374151; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+    .result-area { position:relative; }
+    .result-textarea { min-height:100px; background:#f8fafc; color:#1e293b; }
+    .result-textarea.empty { color:#9ca3af; font-style:italic; display:block; } /* index의 .empty 무력화 */
+    .result-area .copy-btn { position:absolute; right:12px; top:12px; }
+
+    .mode-toggle {
+      display:flex; justify-content:center; gap:20px; padding:16px 20px;
+      background:var(--chip); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    }
+    .mode-option { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink); font-weight:500; }
+    .mode-option input[type="radio"] { width:16px; height:16px; accent-color:var(--acc); }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
     <header>
       <a class="brand" href="https://tools.joyful101.com/">
         <div class="logo"><span class="logo-text">Tool<br>Box</span></div>
@@ -52,8 +49,8 @@
       <div class="spacer"></div>
     </header>
 
-    <div class="converter-card">
-      <div class="input-section">
+    <section class="card center">
+      <div class="card-section">
         <label class="input-label">문장 입력</label>
         <div class="input-area">
           <textarea id="mainInput" class="main-input" placeholder="한글이나 영타를 입력하면 자동으로 변환됩니다..."></textarea>
@@ -68,22 +65,18 @@
         <label class="mode-option"><input type="radio" name="mode" value="ko2en"><span>한글 → 영타</span></label>
       </div>
 
-      <div class="results-section">
+      <div class="card-section">
         <div class="result-item">
-          <div class="result-label">변환 결과 <span id="resultCharCount" style="font-size: 12px; color: #9ca3af; font-weight: normal;">0자</span></div>
+          <div class="result-label">변환 결과 <span id="resultCharCount" class="muted">0자</span></div>
           <div class="result-area">
             <textarea id="resultOutput" class="result-textarea empty" placeholder="변환 결과가 여기에 표시됩니다" readonly></textarea>
             <button id="copyResult" class="copy-btn" disabled>복사</button>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
 
     <footer class="footer"><p>© <span id="year"></span> Tool Box 한영타 변환기</p></footer>
   </div>
-
-  <!-- 외부 스크립트 -->
-  <script src="ads.js" defer></script>
   <script src="haneng-con.js" defer></script>
 </body>
 </html>
