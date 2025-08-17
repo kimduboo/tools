@@ -4,36 +4,37 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>D-Day 계산기 | Tool Box</title>
-  <!-- D-Day 계산기 파비콘 (달력 📅) -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23ffffff'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E📅%3C/text%3E%3C/svg%3E"/>
-
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23ffffff'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E📅%3C/text%3E%3C/svg%3E"/>
   <meta name="description" content="목표 날짜를 입력하면 KST 기준으로 D-Day(D-0/D-/D+), 남은 날·주·개월(근사)·평일 수를 제공합니다." />
+
+  <!-- 외부 리소스 -->
   <script src="ads.js"></script>
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* 헤드라인 레이아웃 */
+    .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+    .flex.space { justify-content:center; gap:12px; }
+    .big { font-size:clamp(42px,8vw,72px); font-weight:900; letter-spacing:-1px; margin:0; }
+  </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <!-- 로고를 홈 링크로 -->
       <a class="brand" href="https://tools.joyful101.com/" aria-label="Tool Box 홈">
         <div class="logo" aria-hidden="true">
           <span class="logo-text">Tool<br>Box</span>
         </div>
       </a>
-      <!-- 제목/설명 중앙 정렬 -->
       <div class="title">
         <h1>D-Day 계산기</h1>
         <p>남은 날/주/개월/평일</p>
       </div>
-      <!-- 오른쪽은 비워서 균형 -->
       <div class="spacer" aria-hidden="true"></div>
     </header>
 
     <main>
-      <!-- 입력: 가운데 60% -->
       <section class="card center" aria-labelledby="calcTitle">
-        <h2 id="calcTitle">입력</h2>
-
         <div class="field">
           <label for="label">이벤트 이름(선택)</label>
           <input id="label" type="text" placeholder="예: 시험일, 계약만료, 생일" />
@@ -55,7 +56,6 @@
         </div>
 
         <div class="ad-slot" id="adTop">
-          <!-- 중간 수평 디스플레이 -->
           <ins class="adsbygoogle"
             style="display:block"
             data-ad-client="ca-pub-6022794906780783"
@@ -63,10 +63,8 @@
             data-ad-format="auto"
             data-full-width-responsive="true"></ins>
         </div>
-
       </section>
 
-      <!-- 결과: 아래에 동일 폭으로 -->
       <section class="card center result-wrap" id="resultWrap" aria-labelledby="resultTitle">
         <h2 id="resultTitle">결과</h2>
         <div class="result">
@@ -84,318 +82,44 @@
 
           <div class="grid kpi-grid" style="margin-top:8px">
             <div class="kpi">
-                <span class="muted">남은 날</span>
-                <div class="kpi-content">
-                  <b id="daysAbs">-일</b>
-                  <button class="copy-btn" data-copy="daysAbs">복사</button>
-                </div>
+              <span class="muted">남은 날</span>
+              <div class="kpi-content">
+                <b id="daysAbs">-일</b>
+                <button class="copy-btn" data-copy="daysAbs">복사</button>
+              </div>
             </div>
             <div class="kpi">
-                <span class="muted">주</span>
-                <div class="kpi-content">
-                    <b id="weeks">-주</b>
-                    <button class="copy-btn" data-copy="weeks">복사</button>
-                </div>
+              <span class="muted">주</span>
+              <div class="kpi-content">
+                <b id="weeks">-주</b>
+                <button class="copy-btn" data-copy="weeks">복사</button>
+              </div>
             </div>
             <div class="kpi">
-                <span class="muted">개월(30일)</span>
-                <div class="kpi-content">
-                    <b id="months">-개월</b>
-                    <button class="copy-btn" data-copy="months">복사</button>
-                </div>
+              <span class="muted">개월(30일)</span>
+              <div class="kpi-content">
+                <b id="months">-개월</b>
+                <button class="copy-btn" data-copy="months">복사</button>
+              </div>
             </div>
             <div class="kpi">
-                <span class="muted">평일 수</span>
-                <div class="kpi-content">
-                    <b id="bizdays">-일</b>
-                    <button class="copy-btn" data-copy="bizdays">복사</button>
-                </div>
+              <span class="muted">평일 수</span>
+              <div class="kpi-content">
+                <b id="bizdays">-일</b>
+                <button class="copy-btn" data-copy="bizdays">복사</button>
+              </div>
             </div>
           </div>
 
           <div class="muted" style="font-size:12px;margin-top:8px">※ 주/개월/평일은 근사치입니다. (당일=0, 지났으면 음수)</div>
-
           <div id="adMid"></div>
         </div>
       </section>
     </main>
 
-    <footer class="footer"><p>© <span id="year"></span>Tool Box • D-Day 계산기</p></footer>
+    <footer class="footer"><p>© <span id="year"></span>Tool Box D-Day 계산기</p></footer>
   </div>
 
-  <script>
-    const KST='Asia/Seoul';
-    const fmtNow=new Intl.DateTimeFormat('ko-KR',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const fmtYMD=new Intl.DateTimeFormat('en-CA',{timeZone:KST,year:'numeric',month:'2-digit',day:'2-digit'});
-    function zonedYMD(d){ const [y,m,dd]=fmtYMD.format(new Date(d)).split('-').map(Number); return {y, m, d: dd}; }
-// 누락된 fmtSigned 함수 추가 (KST 변수 선언 아래쪽에)
-function fmtSigned(num) {
-  const rounded = Math.round(num * 10) / 10; // 소수점 첫째자리까지
-  return rounded >= 0 ? rounded : rounded; // 그냥 숫자 반환
-}
-    const dateInput=document.getElementById('date');
-    function formatYMD(v){ v=(v||'').replace(/\D/g,'').slice(0,8); if(v.length>4)v=v.slice(0,4)+'-'+v.slice(4); if(v.length>7)v=v.slice(0,7)+'-'+v.slice(7,9); return v; }
-    dateInput.addEventListener('input',(e)=>{ e.target.value=formatYMD(e.target.value); syncCalendarFromInput(); });
-    dateInput.addEventListener('blur',(e)=>{ e.target.value=formatYMD(e.target.value); });
-
-
-// ===== 달력 위젯 =====
-const picker=document.getElementById('picker');
-    function getInputYMDOrToday(){ 
-      const v=dateInput.value; 
-      if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
-        const [y,m,d]=v.split('-').map(Number); 
-        return {y,m,d};
-      } 
-      return zonedYMD(new Date()); 
-    }
-
-    // 달력 열기/닫기 함수들
-    function openPicker(){
-      const {y,m} = getInputYMDOrToday(); 
-      buildCalendar(y, m-1);
-      const box = document.querySelector('.datebox'); 
-      const rect = box.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom; 
-      const spaceAbove = rect.top;
-      picker.classList.toggle('above', spaceBelow < 320 && spaceAbove > spaceBelow);
-      picker.style.display = 'block';
-    }
-
-    function closePicker(){ 
-      picker.style.display = 'none'; 
-    }
-
-    function syncCalendarFromInput(){ 
-      if(picker.style.display === 'block'){ 
-        const {y,m} = getInputYMDOrToday(); 
-        buildCalendar(y, m-1); 
-      } 
-    }
-
-    function buildCalendar(y, m0){
-      picker.innerHTML='';
-      const header=document.createElement('div'); header.className='cal-header';
-
-      const yearSelect=document.createElement('select');
-      for(let yy=y-50; yy<=y+50; yy++){
-        const o=document.createElement('option');
-        o.value=yy; o.textContent=yy; if(yy===y)o.selected=true;
-        yearSelect.appendChild(o);
-      }
-
-      const monthSelect=document.createElement('select');
-      for(let mm=0; mm<12; mm++){
-        const o=document.createElement('option');
-        o.value=mm; o.textContent=mm+1; if(mm===m0)o.selected=true;
-        monthSelect.appendChild(o);
-      }
-
-      const left=document.createElement('div'); left.style.display='flex'; left.style.gap='6px';
-      left.appendChild(yearSelect); left.appendChild(monthSelect);
-
-      const mid=document.createElement('div'); mid.style.display='flex'; mid.style.alignItems='center';
-      mid.style.gap='8px'; mid.style.justifyContent='center'; mid.style.flex='1';
-      const title=document.createElement('div'); title.className='cal-title';
-      title.textContent=`${y}년 ${String(m0+1).padStart(2,'0')}월`;
-      const prevBtn=document.createElement('button'); prevBtn.type='button'; prevBtn.className='navbtn'; prevBtn.textContent='◀';
-      const nextBtn=document.createElement('button'); nextBtn.type='button'; nextBtn.className='navbtn'; nextBtn.textContent='▶';
-      mid.appendChild(prevBtn); mid.appendChild(title); mid.appendChild(nextBtn);
-
-      header.appendChild(left); header.appendChild(mid);
-      picker.appendChild(header);
-
-      const table=document.createElement('table');
-      const thead=document.createElement('thead'); const tr=document.createElement('tr');
-      ['일','월','화','수','목','금','토'].forEach(d=>{
-        const th=document.createElement('th'); th.textContent=d; tr.appendChild(th);
-      });
-      thead.appendChild(tr); table.appendChild(thead);
-
-      const tbody=document.createElement('tbody'); let row=document.createElement('tr');
-      const first = new Date(y, m0, 1).getDay();
-      const last  = new Date(y, m0+1, 0).getDate();
-      const prevLast = new Date(y, m0, 0).getDate();
-      let col = 0;
-
-      // 날짜 선택 함수
-      function selectDate(offset, day){
-        let yy = y, mm = m0 + offset;
-        if(mm < 0){ mm = 11; yy--; }
-        if(mm > 11){ mm = 0; yy++; }
-        const mmStr = String(mm+1).padStart(2,'0');
-        const ddStr = String(day).padStart(2,'0');
-        
-        dateInput.value = `${yy}-${mmStr}-${ddStr}`;
-        dateInput.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        setTimeout(() => {
-          closePicker();
-        }, 50);
-      }
-
-      function addCell(text, offset, day){
-        const td = document.createElement('td');
-        td.textContent = text;
-        if(offset !== 0) td.classList.add('other-month');
-        
-        td.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          selectDate(offset, day);
-        }, { passive: false });
-        
-        row.appendChild(td); 
-        col++;
-        if(col === 7){ 
-          tbody.appendChild(row); 
-          row = document.createElement('tr'); 
-          col = 0; 
-        }
-      }
-
-      // 달력 날짜 채우기
-      for(let i=first-1; i>=0; i--){
-        const d = prevLast - i;
-        addCell(d, -1, d);
-      }
-      for(let d=1; d<=last; d++){
-        addCell(d, 0, d);
-      }
-      const tail = (7 - col) % 7;
-      for(let d=1; d<=tail; d++){
-        addCell(d, +1, d);
-      }
-
-      table.appendChild(tbody); picker.appendChild(table);
-
-      // 년/월 선택 이벤트
-      const rerender = () => buildCalendar(parseInt(yearSelect.value,10), parseInt(monthSelect.value,10));
-      yearSelect.addEventListener('change', rerender);
-      monthSelect.addEventListener('change', rerender);
-      
-      prevBtn.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        e.stopPropagation();
-        let yy = parseInt(yearSelect.value,10), mm = parseInt(monthSelect.value,10);
-        mm--; 
-        if(mm < 0){ mm = 11; yy--; } 
-        yearSelect.value = yy; 
-        monthSelect.value = mm; 
-        buildCalendar(yy, mm);
-      });
-      
-      nextBtn.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        e.stopPropagation();
-        let yy = parseInt(yearSelect.value,10), mm = parseInt(monthSelect.value,10);
-        mm++; 
-        if(mm > 11){ mm = 0; yy++; } 
-        yearSelect.value = yy; 
-        monthSelect.value = mm; 
-        buildCalendar(yy, mm);
-      });
-
-      // 달력 내부 클릭 전파 차단
-      picker.addEventListener('click', (e) => {
-        e.stopPropagation();
-      }, { passive: true });
-    }
-
-    // 이벤트 리스너들
-    document.getElementById('openCal').addEventListener('click', (e) => { 
-      e.stopPropagation(); 
-      if(picker.style.display === 'block') {
-        closePicker();
-      } else {
-        openPicker();
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      const box = document.querySelector('.datebox');
-      const pickerEl = document.getElementById('picker');
-      
-      if (pickerEl.style.display !== 'block') return;
-      if (pickerEl && pickerEl.contains(e.target)) return;
-      if (!box.contains(e.target)) {
-        closePicker();
-      }
-    });
-
-    /*KST*/
-    function diffDaysKST(targetStr){
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(targetStr)) return null;
-      const {y:cy,m:cm,d:cd}=zonedYMD(new Date());
-      const todayUTC=new Date(Date.UTC(cy,cm-1,cd));
-      const [ty,tm,td]=targetStr.split('-').map(Number);
-      const targetUTC=new Date(Date.UTC(ty,tm-1,td));
-      const diff=Math.ceil((targetUTC - todayUTC)/86400000);
-      return { diff, todayUTC, targetUTC };
-    }
-
-    function countBizForward(startUTC,endUTC){
-      let c=0,one=86400000,t=new Date(startUTC.getTime()+one);
-      while(t<=endUTC){ const d=t.getUTCDay(); if(d!==0&&d!==6)c++; t=new Date(t.getTime()+one); }
-      return c;
-    }
-
-    function render(){
-      const date=dateInput.value.trim();
-      const label=document.getElementById('label').value.trim();
-      const r=diffDaysKST(date);
-      if(!r){ alert('목표 날짜를 YYYY-MM-DD 형식으로 입력하세요.'); return; }
-      const {diff,todayUTC,targetUTC}=r;
-
-      const head = diff===0 ? 'D-0 (D-day)' : (diff>0 ? `D-${diff}` : `D+${Math.abs(diff)}`);
-      document.getElementById('headline').textContent=head;
-
-      const combined = label ? `${date} (${label})` : date;
-      document.getElementById('subline').textContent = combined;
-
-      const weeks = fmtSigned(diff/7)+'주';
-      const months = fmtSigned(diff/30)+'개월';
-      const biz   = diff>=0 ? countBizForward(todayUTC,targetUTC) : -countBizForward(targetUTC,todayUTC);
-
-      document.getElementById('daysAbs').textContent = `${diff}일`;
-      document.getElementById('weeks').textContent   = weeks;
-      document.getElementById('months').textContent  = months;
-      document.getElementById('bizdays').textContent = `${biz}일`;
-
-      document.getElementById('now').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
-      document.getElementById('resultWrap').style.display='block';
-    }
-
-    function copyTextById(id){
-      const txt=document.getElementById(id).textContent.trim();
-      navigator.clipboard.writeText(txt).then(()=>{
-        const map={ headline:'copyHeadline', subline:'copySubline' };
-        const btn = document.getElementById(map[id]) || document.querySelector(`[data-copy="${id}"]`);
-        if(btn){ const o=btn.textContent; btn.textContent='✅'; setTimeout(()=>btn.textContent=o,900); }
-      });
-    }
-
-    document.getElementById('calcBtn').addEventListener('click',render);
-    document.getElementById('resetBtn').addEventListener('click',()=>{
-      document.getElementById('label').value=''; dateInput.value='';
-      document.getElementById('resultWrap').style.display='none'; closePicker();
-    });
-    document.getElementById('copyHeadline').addEventListener('click',()=>copyTextById('headline'));
-    document.getElementById('copySubline').addEventListener('click',()=>copyTextById('subline'));
-    document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copyTextById(b.dataset.copy)));
-
-    document.getElementById('year').textContent=new Date().getFullYear();
-    document.getElementById('now').textContent=`기준 시각: ${fmtNow.format(new Date())} (KST)`;
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // 페이지 안의 모든 구글 광고 슬롯을 찾습니다.
-      const adSlots = document.querySelectorAll('ins.adsbygoogle');
-      adSlots.forEach(slot => {
-        // 각각의 광고 슬롯에 대해 초기화를 요청합니다.
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      });
-    });
-  </script>
+  <script src="dday-con.js"></script>
 </body>
 </html>

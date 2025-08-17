@@ -1,28 +1,13 @@
-<!doctype html>
-<html lang="ko" data-theme="light">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tool Box – 바로 쓰는 생활 계산기</title>
   <meta name="description" content="만나이, 디데이 등 생활에 유용한 도구를 한곳에 모은 빠르고 가벼운 반응형 웹사이트" />
   <script src="ads.js"></script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='18' width='100' height='100' fill='%23e8efff'/%3E%3Ctext x='50' y='62' font-size='50' text-anchor='middle' fill='%232563eb'%3E%F0%9F%95%9A%EF%B8%8F%3C/text%3E%3C/svg%3E"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='18' width='100' height='100' fill='%23e8efff'/%3E%3Ctext x='50' y='62' font-size='50' text-anchor='middle' fill='%232563eb'%3E%F0%9F%95%9A%EF%B8%8F%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="styles.css">
-  
-  <style>
-    /* 메인 페이지 전용 스타일 */
-    .title p {
-      margin: 0;
-      color: #374151;
-      font-weight: 500;
-      font-size: clamp(16px, 2.2vw, 18px);
-    }
-    
-    .title p b {
-      color: #374151;
-      font-weight: 1000;
-    }
-  </style>
 </head>
 <body>
   <div class="wrap">
@@ -34,106 +19,43 @@
           <span class="logo-text">Tool<br>Box</span>
         </div>
       </a>
-    
-      <!-- 가운데 슬로건 -->
+      <!-- 가운데 -->      
       <div class="title">
-        <p>바로 쓰는 <b>생활 계산기</b></p>
+        <h1>바로 쓰는 <b>생활 계산기</b></h1>
       </div>
-    
-      <!-- 우측 액션 -->
-      <nav class="actions">
-        <a href="#" id="share" aria-label="링크 복사" style="color:var(--acc); text-decoration:none">🔗</a>
+      <!-- 우측 헤더 전용 액션 -->
+      <nav class="header-actions">
+        <a id="share" class="btn-link" aria-label="링크 복사" href="#">🔗</a>
       </nav>
     </header>
 
     <!-- 검색 -->
     <div class="search">
-      <input id="q" placeholder="검색: 만나이, D-Day, BMI, 단위변환…" aria-label="계산기 검색" autocomplete="off" />
+      <input id="q" aria-label="계산기 검색" autocomplete="off" placeholder="검색: 만나이, D-Day, BMI, 단위변환…" />
     </div>
 
     <!-- 검색창 아래 광고 슬롯 -->
-    <section id="ad-under-search" class="ad-slot">
-      <!-- 중간 수평 디스플레이 -->
+    <section class="ad-slot" id="ad-under-search">
       <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-6022794906780783"
-           data-ad-slot="6135885040"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-    </section>
+      data-ad-client="ca-pub-6022794906780783"
+      data-ad-slot="6135885040"
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+      style="display:block"></ins>
+     </section>
 
     <!-- 카드 그리드 -->
-    <section class="grid" id="grid" aria-label="도구 목록"></section>
+    <section id="grid" class="grid" aria-label="도구 목록"></section>
 
     <!-- 검색 결과 없음 -->
-    <div class="empty" id="empty">해당 키워드의 도구가 없어요. 다른 검색어를 입력해 보세요.</div>
+    <div id="empty" class="empty">해당 키워드의 도구가 없어요. 다른 검색어를 입력해 보세요.</div>
 
     <footer class="footer">
       <p>© <span id="year"></span> Tool Box</p>
     </footer>
   </div>
 
-  <script>
-    // 라이트 고정 (버튼은 숨김)
-    const THEME_KEY='ts-theme';
-    function setTheme(){ document.documentElement.setAttribute('data-theme','light'); try{localStorage.setItem(THEME_KEY,'light')}catch(e){} }
-    setTheme();
-
-    // 데이터
-    const tools=[
-      {id:'age-now',name:'만나이 계산기',emoji:'🎂',desc:'세/개월/4;1',href:'/age.html',tags:['나이','개월수','연령','생활']},
-      {id:'dday',name:'D-Day 계산기',emoji:'📅',desc:'남은 날(절대값)/주,개월,평일(근사치)',href:'/dday.html',tags:['날짜','카운트다운','디데이']},
-      // … 필요 시 추가
-    ];
-
-    const grid=document.getElementById('grid');
-    const empty=document.getElementById('empty');
-
-    function card(t){
-      const a=document.createElement('a');
-      a.href=t.href; a.style.textDecoration='none'; a.setAttribute('aria-label',t.name);
-      a.innerHTML=`
-        <article class="card">
-          <div class="head"><div class="emoji" aria-hidden="true">${t.emoji}</div><h3>${t.name}</h3></div>
-          <p>${t.desc}</p>
-          <div class="tags">${t.tags.map(x=>`<span class='tag'>${x}</span>`).join('')}</div>
-          <div class="goto"><a href="${t.href}">바로가기 →</a><span class="new">${t.new?'NEW':''}</span></div>
-        </article>`;
-      return a;
-    }
-
-    function render(list){
-      grid.innerHTML='';
-      list.forEach(t=>grid.appendChild(card(t)));
-      empty.style.display=list.length?'none':'flex';
-    }
-
-    function filter(q){
-      q=q.trim().toLowerCase();
-      if(!q) return tools;
-      return tools.filter(t=>(t.name+' '+t.desc+' '+t.tags.join(' ')).toLowerCase().includes(q));
-    }
-
-    document.getElementById('q').addEventListener('input',e=>render(filter(e.target.value)));
-    document.getElementById('share').addEventListener('click',e=>{
-      e.preventDefault();
-      navigator.clipboard.writeText(location.href).then(()=>{
-        const el=e.currentTarget; const old=el.textContent; el.textContent='✅'; setTimeout(()=>el.textContent=old,900);
-      });
-    });
-
-    document.getElementById('year').textContent=new Date().getFullYear();
-    render(tools);
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // 페이지 안의 모든 구글 광고 슬롯을 찾습니다.
-      const adSlots = document.querySelectorAll('ins.adsbygoogle');
-      adSlots.forEach(slot => {
-        // 각각의 광고 슬롯에 대해 초기화를 요청합니다.
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      });
-    });
-  </script>
+  <!-- 외부 스크립트 분리 -->
+  <script src="index-con.js" defer></script>
 </body>
 </html>
