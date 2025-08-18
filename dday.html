@@ -4,19 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>D-Day 계산기 | Tool Box</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23ffffff'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E📅%3C/text%3E%3C/svg%3E"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23ffffff'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E%F0%9F%93%85%3C/text%3E%3C/svg%3E"/>
   <meta name="description" content="목표 날짜를 입력하면 KST 기준으로 D-Day(D-0/D-/D+), 남은 날·주·개월(근사)·평일 수를 제공합니다." />
 
-  <!-- 외부 리소스 -->
   <script src="ads.js"></script>
   <link rel="stylesheet" href="styles.css">
 
-  <style>
-    /* 헤드라인 레이아웃 */
-    .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
-    .flex.space { justify-content:center; gap:12px; }
-    .big { font-size:clamp(42px,8vw,72px); font-weight:900; letter-spacing:-1px; margin:0; }
-  </style>
 </head>
 <body>
   <div class="wrap">
@@ -34,7 +27,7 @@
     </header>
 
     <main>
-      <section class="card center" aria-labelledby="calcTitle">
+      <section class="card" aria-labelledby="calcTitle">
         <div class="field">
           <label for="label">이벤트 이름(선택)</label>
           <input id="label" type="text" placeholder="예: 시험일, 계약만료, 생일" />
@@ -55,6 +48,7 @@
           <button id="resetBtn" class="btn" aria-label="입력 초기화">초기화</button>
         </div>
       </section>
+
       <div class="ad-slot" id="adTop">
         <ins class="adsbygoogle"
           style="display:block"
@@ -63,19 +57,25 @@
           data-ad-format="auto"
           data-full-width-responsive="true"></ins>
       </div>
-      <section class="card center result-wrap" id="resultWrap" aria-labelledby="resultTitle">
-        <h2 id="resultTitle">결과</h2>
+
+      <section class="card result-wrap" id="resultWrap" aria-labelledby="resultTitle">
         <div class="result">
           <div class="muted" id="now">기준 시각: -</div>
 
-          <div class="flex" style="margin-top:6px">
-            <div class="big copyable" id="headline" aria-live="polite">D--</div>
+          <!-- 헤드라인 -->
+          <div class="headline" style="margin-top:6px">
+            <span class="copyable" id="headline" aria-live="polite">D--</span>
             <button class="copy-btn" id="copyHeadline" aria-label="D-Day 복사">복사</button>
           </div>
 
-          <div class="flex space">
-            <div class="muted copyable" id="subline">-</div>
-            <button class="copy-btn" id="copySubline">복사</button>
+          <!-- 서브라인 -->
+          <div class="kpi" style="margin-top:8px">
+  <span class="muted">목표일(라벨)</span>
+  <div class="kpi-content">
+    <b id="subline">-</b>
+    <button class="copy-btn" id="copySubline">복사</button>
+  </div>
+</div>
           </div>
 
           <div class="grid kpi-grid" style="margin-top:8px">
@@ -111,13 +111,66 @@
 
           <div class="muted" style="font-size:12px;margin-top:8px">※ 주/개월/평일은 근사치입니다. (당일=0, 지났으면 음수)</div>
           <div id="adMid"></div>
-        </div>
+        
+      </section>
+
+      <!-- 페이지 설명 -->
+      <section class="info" id="about-dday">
+        <h2>D‑Day(디데이) 계산기 안내</h2>
+        <p class="info__lead">
+          목표 날짜를 입력하면 KST 기준으로 <strong>D‑Day 표기(D‑0/D‑/D+)</strong>와
+          <strong>남은 날(절대값)</strong>, <strong>주</strong>, <strong>개월(근사)</strong>,
+          <strong>평일 수</strong>를 한 번에 제공하는 가벼운 <strong>디데이 계산기</strong>입니다.
+        </p>
+
+        <h3>사용 방법</h3>
+        <ol class="info__list">
+          <li><b>목표 날짜</b>를 <code>YYYY‑MM‑DD</code> 형식으로 입력하거나 달력에서 선택합니다.</li>
+          <li><b>계산하기</b>를 누르면 D‑Day 결과와 보조 지표(주/개월/평일)가 표시됩니다.</li>
+          <li>필요한 항목은 <b>복사</b> 버튼으로 바로 가져가서 일정/문서/메신저에 붙여 넣으세요.</li>
+        </ol>
+
+        <h3>이 계산기가 유용한 경우</h3>
+        <ul class="info__list info__list--check">
+          <li><b>D‑100</b>·<b>D‑Day</b> 캠페인, 시험일·원서마감·출시일 카운트다운</li>
+          <li>프로젝트 관리에서 <b>평일(영업일) 기준</b> 남은 작업일 산출이 필요할 때</li>
+          <li>기념일/생일/계약만료 등 날짜 기반 리마인드가 자주 필요한 경우</li>
+        </ul>
+
+        <h3>자주 묻는 질문(FAQ)</h3>
+        <dl class="faq faq--badges faq--boxed">
+          <div class="faq__item">
+            <dt>D‑0, D‑, D+는 어떻게 정해지나요?</dt>
+            <dd>목표 날짜가 <b>오늘</b>이면 D‑0, <b>미래</b>면 D‑(마이너스), <b>지났다면</b> D+로 표기합니다.</dd>
+          </div>
+          <div class="faq__item">
+            <dt>주/개월 값이 “근사치”인 이유는?</dt>
+            <dd>주=7일, 개월=30일로 단순 환산하여 빠르게 추정합니다. 정확한 달 수 계산이 필요한 경우 달력 기준으로 확인하세요.</dd>
+          </div>
+          <div class="faq__item">
+            <dt>평일 수는 어떤 기준인가요?</dt>
+            <dd>기본은 월–금(토·일 제외) 기준입니다. 법정 공휴일은 별도 반영하지 않습니다.</dd>
+          </div>
+        </dl>
       </section>
     </main>
 
-    <footer class="footer"><p>© <span id="year"></span>Tool Box D-Day 계산기</p></footer>
+    <footer class="footer"><p>© <span id="year"></span>Tool Box D‑Day 계산기</p></footer>
   </div>
 
   <script src="dday-con.js"></script>
+
+  <!-- FAQ 구조화 데이터 (화면노출x) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type": "Question","name": "D‑0, D‑, D+는 어떻게 정해지나요?","acceptedAnswer": {"@type": "Answer","text": "목표 날짜가 오늘이면 D‑0, 미래면 D‑(마이너스), 지났다면 D+로 표기합니다."}},
+      {"@type": "Question","name": "주/개월 값이 근사치인 이유는?","acceptedAnswer": {"@type": "Answer","text": "주=7일, 개월=30일로 단순 환산해 빠르게 추정합니다. 달 길이와 윤년에 따라 실제 값은 달라질 수 있습니다."}},
+      {"@type": "Question","name": "평일 수는 어떤 기준인가요?","acceptedAnswer": {"@type": "Answer","text": "월–금(토·일 제외) 기준으로 계산합니다. 법정 공휴일은 제외하지 않습니다."}}
+    ]
+  }
+  </script>
 </body>
 </html>
