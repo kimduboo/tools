@@ -18,13 +18,16 @@ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sa
 background:var(--bg);
 color:#1e293b;
 line-height:1.6;
+height: 100%;
 }
+body { min-height: 100dvh; display: flex; flex-direction: column; }
 
 /* ===== Layout ===== */
 .wrap{
 max-width:800px;     /* 데스크톱 기준 폭 제한 */
 margin:0 auto;       /* 좌우 여백 자동 분배 */
 padding:20px;        /* 기본 내부 여백 */
+flex: 1 0 auto;
 }
 
 /* ===== Header ===== */
@@ -81,7 +84,7 @@ font-size: 14px;
 /* ===== Footer ===== */
 .footer {
 text-align: center;
-margin-top: 40px;
+margin-top: auto;
 color: #9ca3af;
 font-size: 14px;
 }
