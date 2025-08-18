@@ -1,4 +1,4 @@
-// /ads.js — AdSense 안전 로더 & 단일 초기화
+// ads.js — AdSense 안전 로더 & 단일 초기화
 (() => {
   const CLIENT = 'ca-pub-6022794906780783';
   const SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${CLIENT}`;
@@ -17,7 +17,6 @@
     const slots = root.querySelectorAll('ins.adsbygoogle:not([data-adsbygoogle-status])');
     if (!slots.length) return;
     window.adsbygoogle = window.adsbygoogle || [];
-    // 슬롯 개수만큼 push — DOM 상태에 따라 안전하게 1회씩만
     for (let i = 0; i < slots.length; i++) {
       window.adsbygoogle.push({});
     }
